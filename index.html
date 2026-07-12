@@ -155,6 +155,12 @@
   .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
           display:inline-block; margin-top:10px; }
   .pop a:hover{ text-decoration:underline; }
+  .pop .btn-add-visit-popup{
+    margin-top:10px; font-size:12px; padding:6px 12px; border-radius:8px;
+    border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
+    font-family:"Archivo",sans-serif; display:block;
+  }
+  .pop .btn-add-visit-popup:hover{ background:var(--limestone); }
 
   /* ---------- Coordinate picker ---------- */
   .coord-picker{
@@ -223,6 +229,7 @@
     padding:12px 14px; margin:6px 0 0; overflow-x:auto; white-space:pre;
   }
   .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
+  .visit-modal-body{ padding:14px 22px 4px; display:flex; flex-direction:column; gap:10px; }
 
   /* ---------- Visits ---------- */
   #visitsList{ display:flex; flex-direction:column; gap:10px; }
@@ -256,6 +263,11 @@
   }
   .btn-add-route:hover{ background:var(--limestone); }
   .btn-add-visit{ align-self:flex-start; }
+  .card .btn-add-visit-card{
+    margin-top:8px; font-size:11.5px; padding:5px 10px; border-radius:7px;
+    border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
+  }
+  .card .btn-add-visit-card:hover{ background:var(--limestone); }
 
   /* ---------- Responsive ---------- */
   @media (max-width:820px){
@@ -364,6 +376,28 @@
   </div>
 </div>
 
+<!-- Add-visit modal -->
+<div class="overlay" id="visitOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="visitModalTitle">
+    <div class="modal-head">
+      <h2 id="visitModalTitle">Add a visit</h2>
+      <p id="visitModalSub"></p>
+    </div>
+    <div class="visit-modal-body">
+      <div id="visitAddList"></div>
+      <button type="button" class="btn btn-ghost btn-add-visit" id="addVisitBtn2">+ Add a visit</button>
+    </div>
+    <div class="snippet">
+      <label>Snippet — paste into this place's <span class="mono">visits</span> array in <span class="mono">crags.js</span></label>
+      <pre id="visitSnippet">Fill in a visit to generate…</pre>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="visitCopyBtn" type="button">Copy snippet</button>
+      <button class="btn btn-ghost" id="visitCloseBtn" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
 <script src="crags.js"></script>
 <script>
 /* ---------- Map setup ---------- */
@@ -411,6 +445,7 @@ function popupHTML(c){
     <h3>${esc(c.name)}</h3>
     ${rows}
     ${visitsHTML(c.visits)}
+    <button type="button" class="btn-add-visit-popup">+ Add visit</button>
     ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
   </div>`;
 }
@@ -438,10 +473,12 @@ function render(filter=""){
         <span class="tagpill">${esc(typeLabel(c.type))}</span>
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
         ${c.visits&&c.visits.length?`<span class="tagpill">${c.visits.length} visit${c.visits.length>1?'s':''}</span>`:''}
-      </div>`;
+      </div>
+      <button type="button" class="btn-add-visit-card">+ Add visit</button>`;
     const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
     card.addEventListener('click', go);
     card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
+    card.querySelector('.btn-add-visit-card').addEventListener('click', e => { e.stopPropagation(); openVisitModal(c); });
     listEl.appendChild(card);
   });
 
@@ -456,6 +493,14 @@ function updateStats(){
 }
 
 document.getElementById('search').addEventListener('input', e => render(e.target.value));
+
+map.on('popupopen', e => {
+  const btn = e.popup.getElement()?.querySelector('.btn-add-visit-popup');
+  if(!btn || btn.dataset.bound) return;
+  btn.dataset.bound = '1';
+  const entry = markers.find(m => m.marker === e.popup._source);
+  if(entry) btn.addEventListener('click', () => openVisitModal(entry.crag));
+});
 
 /* ---------- Add-crag flow ---------- */
 const addBtn = document.getElementById('addBtn');
@@ -472,13 +517,13 @@ function arm(on){
   map.getContainer().style.cursor = on ? 'crosshair' : '';
 }
 addBtn.addEventListener('click', () => { closePicker(); arm(!armed); });
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); closePicker(); }});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); closePicker(); closeVisitModal(); }});
 
 map.on('click', e => {
   if(!armed) return;
   arm(false);
   form.reset();
-  resetVisits();
+  resetVisits(visitsList, buildSnippet);
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
   syncTempMarker();
@@ -524,7 +569,7 @@ pickerNextBtn.addEventListener('click', () => {
   if(!pickerCoord) return;
   coordPicker.classList.remove('show');
   form.reset();
-  resetVisits();
+  resetVisits(visitsList, buildSnippet);
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
   buildSnippet();
@@ -589,7 +634,7 @@ function parseCoordinates(str){
 /* ---------- Visits ---------- */
 const visitsList = document.getElementById('visitsList');
 
-function makeRouteRow(){
+function makeRouteRow(onChange){
   const row = document.createElement('div');
   row.className = 'route-row';
   row.innerHTML = `
@@ -597,11 +642,11 @@ function makeRouteRow(){
     <input type="text" class="route-grade mono" placeholder="Grade" />
     <input type="text" class="route-comment" placeholder="Comment" />
     <button type="button" aria-label="Remove route">×</button>`;
-  row.querySelector('button').addEventListener('click', () => { row.remove(); buildSnippet(); });
+  row.querySelector('button').addEventListener('click', () => { row.remove(); onChange(); });
   return row;
 }
 
-function makeVisitBlock(){
+function makeVisitBlock(onChange){
   const block = document.createElement('div');
   block.className = 'visit-block';
   block.innerHTML = `
@@ -615,38 +660,40 @@ function makeVisitBlock(){
     </div>
     <div class="routes-list"></div>
     <button type="button" class="btn-add-route">+ Add route</button>`;
-  block.querySelector('.routes-list').appendChild(makeRouteRow());
+  block.querySelector('.routes-list').appendChild(makeRouteRow(onChange));
   block.querySelector('.btn-add-route').addEventListener('click', () => {
-    block.querySelector('.routes-list').appendChild(makeRouteRow());
+    block.querySelector('.routes-list').appendChild(makeRouteRow(onChange));
+    onChange();
   });
   block.querySelector('.visit-head button').addEventListener('click', () => {
+    const container = block.parentElement;
     block.remove();
-    renumberVisits();
-    buildSnippet();
+    renumberVisits(container);
+    onChange();
   });
   return block;
 }
 
-function renumberVisits(){
-  [...visitsList.querySelectorAll('.visit-block')].forEach((b, i) => {
+function renumberVisits(container){
+  [...container.querySelectorAll('.visit-block')].forEach((b, i) => {
     b.querySelector('.visit-num').textContent = `Visit ${i+1}`;
   });
 }
 
-function resetVisits(){
-  visitsList.innerHTML = '';
-  visitsList.appendChild(makeVisitBlock());
-  renumberVisits();
+function resetVisits(container, onChange){
+  container.innerHTML = '';
+  container.appendChild(makeVisitBlock(onChange));
+  renumberVisits(container);
 }
 
 document.getElementById('addVisitBtn').addEventListener('click', () => {
-  visitsList.appendChild(makeVisitBlock());
-  renumberVisits();
+  visitsList.appendChild(makeVisitBlock(buildSnippet));
+  renumberVisits(visitsList);
   buildSnippet();
 });
 
-function collectVisits(){
-  return [...visitsList.querySelectorAll('.visit-block')].map(block => {
+function collectVisits(container){
+  return [...container.querySelectorAll('.visit-block')].map(block => {
     const date = block.querySelector('.visit-date').value.trim();
     const withPeople = block.querySelector('.visit-with').value.trim();
     const routes = [...block.querySelectorAll('.route-row')].map(row => {
@@ -671,7 +718,7 @@ function collectVisits(){
 function readForm(){
   const g = n => form[n].value.trim();
   const parking = parseCoordinates(g('parkingCoords'));
-  const visits = collectVisits();
+  const visits = collectVisits(visitsList);
   const o = { type:g('type'), name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
@@ -715,8 +762,45 @@ function closeModal(){
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', e => { if(e.target===overlay) closeModal(); });
 
+/* ---------- Add-visit flow (for places already saved in crags.js) ---------- */
+const visitOverlay   = document.getElementById('visitOverlay');
+const visitAddList   = document.getElementById('visitAddList');
+const visitModalSub  = document.getElementById('visitModalSub');
+const visitSnippetEl = document.getElementById('visitSnippet');
+
+function buildVisitSnippet(){
+  const visits = collectVisits(visitAddList);
+  document.getElementById('visitSnippet').textContent = visits.length
+    ? visits.map(v => `  ${JSON.stringify(v)},`).join('\n')
+    : 'Fill in a visit to generate…';
+}
+
+function openVisitModal(crag){
+  closeModal(); closePicker();
+  visitModalSub.textContent = `Paste the snippet below into "${crag.name}"'s visits array in crags.js.`;
+  resetVisits(visitAddList, buildVisitSnippet);
+  buildVisitSnippet();
+  visitOverlay.classList.add('show');
+}
+function closeVisitModal(){
+  visitOverlay.classList.remove('show');
+}
+document.getElementById('addVisitBtn2').addEventListener('click', () => {
+  visitAddList.appendChild(makeVisitBlock(buildVisitSnippet));
+  renumberVisits(visitAddList);
+  buildVisitSnippet();
+});
+visitAddList.addEventListener('input', buildVisitSnippet);
+document.getElementById('visitCopyBtn').addEventListener('click', () => {
+  navigator.clipboard?.writeText(visitSnippetEl.textContent);
+  const b = document.getElementById('visitCopyBtn');
+  b.textContent = 'Copied ✓'; setTimeout(()=> b.textContent='Copy snippet', 1400);
+});
+document.getElementById('visitCloseBtn').addEventListener('click', closeVisitModal);
+visitOverlay.addEventListener('click', e => { if(e.target===visitOverlay) closeVisitModal(); });
+
 /* ---------- Go ---------- */
-resetVisits();
+resetVisits(visitsList, buildSnippet);
 render();
 </script>
 </body>

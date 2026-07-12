@@ -90,6 +90,8 @@
   .btn-ghost:hover{ background:var(--limestone); }
   .btn-ghost-invert{ background:rgba(246,243,235,.08); color:var(--chalk); border:1px solid rgba(246,243,235,.28); z-index:1; }
   .btn-ghost-invert:hover{ background:rgba(246,243,235,.18); }
+  .btn-danger{ background:transparent; color:var(--marker); border:1px solid var(--marker); margin-right:auto; }
+  .btn-danger:hover{ background:var(--marker); color:#fff; }
 
   /* ---------- Layout ---------- */
   .stage{ display:flex; height:calc(100% - var(--header-h)); position:relative; }
@@ -236,6 +238,15 @@
   }
   .visit-detail ul{ margin:0; padding-left:18px; font-size:14px; line-height:1.65; color:var(--ink); }
   .visit-detail .empty{ color:var(--sage); font-size:13px; }
+  .visit-detail-actions{ display:flex; gap:8px; }
+  .visit-detail-actions button{
+    font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer;
+    border:1px dashed var(--line); background:transparent; color:var(--pine-2);
+    font-family:"Archivo",sans-serif;
+  }
+  .visit-detail-actions button:hover{ background:var(--limestone); }
+  .visit-detail-actions #deleteVisitBtn{ color:var(--marker); border-color:var(--marker); }
+  .visit-detail-actions #deleteVisitBtn:hover{ background:var(--marker); color:#fff; }
 
   /* ---------- Visits ---------- */
   #visitsList{ display:flex; flex-direction:column; gap:10px; }
@@ -374,6 +385,7 @@
       </div>
     </form>
     <div class="modal-foot">
+      <button class="btn btn-danger" id="deleteCragBtn" type="button" style="display:none;">Delete place</button>
       <button class="btn btn-ghost" id="cancelBtn" type="button">Close</button>
       <button class="btn btn-add" id="dropBtn" type="button">Drop on map</button>
     </div>
@@ -408,6 +420,10 @@
     <div class="visits-view-body">
       <div class="visits-tabs" id="visitsTabs"></div>
       <div class="visit-detail" id="visitDetail"></div>
+      <div class="visit-detail-actions">
+        <button type="button" id="editVisitBtn">Edit visit</button>
+        <button type="button" id="deleteVisitBtn">Delete visit</button>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" id="visitsViewCloseBtn" type="button">Close</button>
@@ -451,6 +467,7 @@ function popupHTML(c){
     <div class="pop-actions">
       ${hasVisits ? `<button type="button" class="btn-view-visits-popup">View visits (${c.visits.length})</button>` : ''}
       <button type="button" class="btn-add-visit-popup">+ Add visit</button>
+      <button type="button" class="btn-edit-popup">Edit</button>
     </div>
     ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
   </div>`;
@@ -502,12 +519,14 @@ function render(filter=""){
       <div class="card-actions">
         ${c.visits&&c.visits.length?`<button type="button" class="btn-view-visits-card">View visits</button>`:''}
         <button type="button" class="btn-add-visit-card">+ Add visit</button>
+        <button type="button" class="btn-edit-card">Edit</button>
       </div>`;
     const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
     card.addEventListener('click', go);
     card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
     card.querySelector('.btn-add-visit-card').addEventListener('click', e => { e.stopPropagation(); openVisitModal(c); });
     card.querySelector('.btn-view-visits-card')?.addEventListener('click', e => { e.stopPropagation(); openVisitsView(c); });
+    card.querySelector('.btn-edit-card').addEventListener('click', e => { e.stopPropagation(); openEditModal(c); });
     listEl.appendChild(card);
   });
 
@@ -539,6 +558,11 @@ map.on('popupopen', e => {
     viewBtn.dataset.bound = '1';
     viewBtn.addEventListener('click', () => openVisitsView(entry.crag));
   }
+  const editBtn = el.querySelector('.btn-edit-popup');
+  if(editBtn && !editBtn.dataset.bound){
+    editBtn.dataset.bound = '1';
+    editBtn.addEventListener('click', () => openEditModal(entry.crag));
+  }
 });
 
 /* ---------- Add-crag flow ---------- */
@@ -546,7 +570,35 @@ const addBtn = document.getElementById('addBtn');
 const toast  = document.getElementById('toast');
 const overlay= document.getElementById('overlay');
 const form   = document.getElementById('cragForm');
-let armed = false, tempMarker = null;
+let armed = false, tempMarker = null, editingCrag = null;
+
+function resetModalToAddMode(){
+  editingCrag = null;
+  document.getElementById('modalTitle').textContent = 'Log a place';
+  document.getElementById('dropBtn').textContent = 'Drop on map';
+  document.getElementById('deleteCragBtn').style.display = 'none';
+}
+
+function openEditModal(crag){
+  closePicker(); closeVisitModal(); closeVisitsView();
+  editingCrag = crag;
+  document.getElementById('modalTitle').textContent = 'Edit place';
+  document.getElementById('dropBtn').textContent = 'Save changes';
+  document.getElementById('deleteCragBtn').style.display = '';
+  form.type.value = crag.type || 'crag';
+  form.name.value = crag.name || '';
+  form.lat.value = crag.lat;
+  form.lng.value = crag.lng;
+  form.parkingCoords.value = (crag.parkingLat!==undefined && crag.parkingLng!==undefined)
+    ? `${crag.parkingLat}, ${crag.parkingLng}` : '';
+  form.rock.value = crag.rock || '';
+  form.link.value = crag.link || '';
+  fillVisitsList(visitsList, crag.visits, noop);
+  if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+  syncTempMarker(crag.lat, crag.lng);
+  overlay.classList.add('show');
+  form.name.focus();
+}
 
 function arm(on){
   armed = on;
@@ -562,6 +614,7 @@ map.on('click', e => {
   if(!armed) return;
   arm(false);
   form.reset();
+  resetModalToAddMode();
   resetVisits(visitsList, noop);
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
@@ -607,6 +660,7 @@ pickerNextBtn.addEventListener('click', () => {
   if(!pickerCoord) return;
   coordPicker.classList.remove('show');
   form.reset();
+  resetModalToAddMode();
   resetVisits(visitsList, noop);
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
@@ -717,10 +771,34 @@ function renumberVisits(container){
   });
 }
 
-function resetVisits(container, onChange){
+function fillVisitBlock(block, visit, onChange){
+  block.querySelector('.visit-date').value = visit.date || '';
+  block.querySelector('.visit-with').value = visit.with || '';
+  const routesList = block.querySelector('.routes-list');
+  routesList.innerHTML = '';
+  const routes = (visit.routes && visit.routes.length) ? visit.routes : [{}];
+  routes.forEach(r => {
+    const row = makeRouteRow(onChange);
+    row.querySelector('.route-name').value = r.name || '';
+    row.querySelector('.route-grade').value = r.grade || '';
+    row.querySelector('.route-comment').value = r.comment || '';
+    routesList.appendChild(row);
+  });
+}
+
+function fillVisitsList(container, visits, onChange){
   container.innerHTML = '';
-  container.appendChild(makeVisitBlock(onChange));
+  const list = (visits && visits.length) ? visits : [{}];
+  list.forEach(v => {
+    const block = makeVisitBlock(onChange);
+    fillVisitBlock(block, v, onChange);
+    container.appendChild(block);
+  });
   renumberVisits(container);
+}
+
+function resetVisits(container, onChange){
+  fillVisitsList(container, [], onChange);
 }
 
 document.getElementById('addVisitBtn').addEventListener('click', () => {
@@ -771,15 +849,30 @@ form.addEventListener('input', e => {
 document.getElementById('dropBtn').addEventListener('click', () => {
   const o = readForm();
   if(!o.name || isNaN(o.lat) || isNaN(o.lng)){ alert('Need at least a name and coordinates.'); return; }
-  CRAGS.push(o);
+  if(editingCrag){
+    Object.keys(editingCrag).forEach(k => delete editingCrag[k]);
+    Object.assign(editingCrag, o);
+  } else {
+    CRAGS.push(o);
+  }
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
   render(document.getElementById('search').value);
   closeModal();
 });
 
+document.getElementById('deleteCragBtn').addEventListener('click', () => {
+  if(!editingCrag) return;
+  if(!confirm(`Delete "${editingCrag.name}" and all its visits? This can't be undone (unless you skip downloading crags.js after).`)) return;
+  const idx = CRAGS.indexOf(editingCrag);
+  if(idx !== -1) CRAGS.splice(idx, 1);
+  closeModal();
+  render(document.getElementById('search').value);
+});
+
 function closeModal(){
   overlay.classList.remove('show');
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+  editingCrag = null;
 }
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 
@@ -787,38 +880,63 @@ document.getElementById('cancelBtn').addEventListener('click', closeModal);
 const visitOverlay  = document.getElementById('visitOverlay');
 const visitAddList  = document.getElementById('visitAddList');
 const visitModalSub = document.getElementById('visitModalSub');
-let visitTargetCrag = null;
+const addVisitBtn2  = document.getElementById('addVisitBtn2');
+let visitTargetCrag = null, editingVisitIndex = null;
 
 function openVisitModal(crag){
   closeModal(); closePicker();
   visitTargetCrag = crag;
+  editingVisitIndex = null;
+  document.getElementById('visitModalTitle').textContent = 'Add a visit';
   visitModalSub.textContent = `Add a visit to "${crag.name}". It'll be included next time you download crags.js.`;
   resetVisits(visitAddList, noop);
+  addVisitBtn2.style.display = '';
+  visitOverlay.classList.add('show');
+}
+function openEditVisitModal(crag, index){
+  closeModal(); closePicker(); closeVisitsView();
+  visitTargetCrag = crag;
+  editingVisitIndex = index;
+  document.getElementById('visitModalTitle').textContent = 'Edit visit';
+  visitModalSub.textContent = `Editing a visit to "${crag.name}".`;
+  visitAddList.innerHTML = '';
+  const block = makeVisitBlock(noop);
+  fillVisitBlock(block, crag.visits[index], noop);
+  visitAddList.appendChild(block);
+  renumberVisits(visitAddList);
+  addVisitBtn2.style.display = 'none';
   visitOverlay.classList.add('show');
 }
 function closeVisitModal(){
   visitOverlay.classList.remove('show');
   visitTargetCrag = null;
+  editingVisitIndex = null;
 }
-document.getElementById('addVisitBtn2').addEventListener('click', () => {
+addVisitBtn2.addEventListener('click', () => {
   visitAddList.appendChild(makeVisitBlock(noop));
   renumberVisits(visitAddList);
 });
 document.getElementById('saveVisitBtn').addEventListener('click', () => {
   const visits = collectVisits(visitAddList);
   if(!visits.length){ alert('Fill in at least a date, who you were with, or a route first.'); return; }
-  visitTargetCrag.visits = (visitTargetCrag.visits || []).concat(visits);
+  if(editingVisitIndex !== null){
+    visitTargetCrag.visits[editingVisitIndex] = visits[0];
+  } else {
+    visitTargetCrag.visits = (visitTargetCrag.visits || []).concat(visits);
+  }
   closeVisitModal();
   render(document.getElementById('search').value);
 });
 document.getElementById('visitCloseBtn').addEventListener('click', closeVisitModal);
 
-/* ---------- Visits browser (view routes/comments per visit) ---------- */
+/* ---------- Visits browser (view/edit/delete per visit) ---------- */
 const visitsViewOverlay = document.getElementById('visitsViewOverlay');
 const visitsViewTitle   = document.getElementById('visitsViewTitle');
 const visitsViewSub     = document.getElementById('visitsViewSub');
 const visitsTabs        = document.getElementById('visitsTabs');
 const visitDetail       = document.getElementById('visitDetail');
+const visitDetailActions = document.querySelector('.visit-detail-actions');
+let visitsViewCrag = null, visitsViewIndex = null;
 
 function renderVisitDetail(v){
   const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
@@ -832,6 +950,7 @@ function renderVisitDetail(v){
 
 function openVisitsView(crag){
   closeModal(); closePicker(); closeVisitModal();
+  visitsViewCrag = crag;
   visitsViewTitle.textContent = crag.name;
   const visits = crag.visits || [];
   visitsViewSub.textContent = `${visits.length} visit${visits.length===1?'':'s'} logged`;
@@ -844,21 +963,39 @@ function openVisitsView(crag){
     tab.addEventListener('click', () => {
       [...visitsTabs.children].forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
+      visitsViewIndex = i;
       renderVisitDetail(v);
     });
     visitsTabs.appendChild(tab);
   });
   if(visits.length){
     visitsTabs.firstElementChild.classList.add('active');
+    visitsViewIndex = 0;
     renderVisitDetail(visits[0]);
+    visitDetailActions.style.display = '';
   } else {
+    visitsViewIndex = null;
     visitDetail.innerHTML = '<div class="empty">No visits logged yet.</div>';
+    visitDetailActions.style.display = 'none';
   }
   visitsViewOverlay.classList.add('show');
 }
 function closeVisitsView(){
   visitsViewOverlay.classList.remove('show');
+  visitsViewCrag = null;
+  visitsViewIndex = null;
 }
+document.getElementById('editVisitBtn').addEventListener('click', () => {
+  if(visitsViewCrag && visitsViewIndex !== null) openEditVisitModal(visitsViewCrag, visitsViewIndex);
+});
+document.getElementById('deleteVisitBtn').addEventListener('click', () => {
+  if(!visitsViewCrag || visitsViewIndex === null) return;
+  if(!confirm("Delete this visit? This can't be undone (unless you skip downloading crags.js after).")) return;
+  visitsViewCrag.visits.splice(visitsViewIndex, 1);
+  render(document.getElementById('search').value);
+  if(visitsViewCrag.visits.length) openVisitsView(visitsViewCrag);
+  else closeVisitsView();
+});
 document.getElementById('visitsViewCloseBtn').addEventListener('click', closeVisitsView);
 visitsViewOverlay.addEventListener('click', e => { if(e.target===visitsViewOverlay) closeVisitsView(); });
 

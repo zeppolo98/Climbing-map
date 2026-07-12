@@ -145,22 +145,17 @@
              display:flex; justify-content:space-between; gap:14px; padding:3px 0;
              border-top:1px dashed var(--line); }
   .pop .row span:first-child{ color:var(--sage); }
-  .pop .visits{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
-  .pop .visit{ border-top:1px dashed var(--line); padding-top:8px; }
-  .pop .visit-meta{
-    font-size:11px; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--sage); margin-bottom:4px;
-  }
-  .pop .visit ul{ margin:0; padding-left:16px; font-size:13px; line-height:1.5; color:var(--ink); }
   .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
           display:inline-block; margin-top:10px; }
   .pop a:hover{ text-decoration:underline; }
-  .pop .btn-add-visit-popup{
-    margin-top:10px; font-size:12px; padding:6px 12px; border-radius:8px;
+  .pop-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .pop-actions button{
+    font-size:12px; padding:6px 12px; border-radius:8px;
     border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
-    font-family:"Archivo",sans-serif; display:block;
+    font-family:"Archivo",sans-serif;
   }
-  .pop .btn-add-visit-popup:hover{ background:var(--limestone); }
+  .pop-actions button:hover{ background:var(--limestone); }
+  .pop-actions .btn-view-visits-popup{ border-style:solid; }
 
   /* ---------- Coordinate picker ---------- */
   .coord-picker{
@@ -231,6 +226,24 @@
   .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
   .visit-modal-body{ padding:14px 22px 4px; display:flex; flex-direction:column; gap:10px; }
 
+  /* ---------- Visits browser ---------- */
+  .visits-view-body{ padding:14px 22px 6px; display:flex; flex-direction:column; gap:14px; }
+  .visits-tabs{ display:flex; flex-wrap:wrap; gap:8px; }
+  .visit-tab{
+    font-family:"Space Mono",monospace; font-size:12px; padding:7px 12px; border-radius:999px;
+    border:1px solid var(--line); background:var(--limestone); color:var(--pine-2); cursor:pointer;
+  }
+  .visit-tab.active{ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
+  .visit-detail{
+    border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fff; min-height:60px;
+  }
+  .visit-detail .visit-meta{
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--sage); margin-bottom:8px;
+  }
+  .visit-detail ul{ margin:0; padding-left:18px; font-size:14px; line-height:1.65; color:var(--ink); }
+  .visit-detail .empty{ color:var(--sage); font-size:13px; }
+
   /* ---------- Visits ---------- */
   #visitsList{ display:flex; flex-direction:column; gap:10px; }
   .visit-block{
@@ -263,11 +276,13 @@
   }
   .btn-add-route:hover{ background:var(--limestone); }
   .btn-add-visit{ align-self:flex-start; }
-  .card .btn-add-visit-card{
-    margin-top:8px; font-size:11.5px; padding:5px 10px; border-radius:7px;
+  .card-actions{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .card-actions button{
+    font-size:11.5px; padding:5px 10px; border-radius:7px;
     border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
   }
-  .card .btn-add-visit-card:hover{ background:var(--limestone); }
+  .card-actions button:hover{ background:var(--limestone); }
+  .card-actions .btn-view-visits-card{ border-style:solid; }
 
   /* ---------- Responsive ---------- */
   @media (max-width:820px){
@@ -398,6 +413,23 @@
   </div>
 </div>
 
+<!-- Visits browser -->
+<div class="overlay" id="visitsViewOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="visitsViewTitle">
+    <div class="modal-head">
+      <h2 id="visitsViewTitle">Visits</h2>
+      <p id="visitsViewSub"></p>
+    </div>
+    <div class="visits-view-body">
+      <div class="visits-tabs" id="visitsTabs"></div>
+      <div class="visit-detail" id="visitDetail"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="visitsViewCloseBtn" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
 <script src="crags.js"></script>
 <script>
 /* ---------- Map setup ---------- */
@@ -419,22 +451,9 @@ function pinIcon(temp){
 
 function typeLabel(t){ return t==='multipitch' ? 'Multipitch' : 'Crag'; }
 
-function visitsHTML(visits){
-  if(!visits || !visits.length) return '';
-  const items = visits.map(v => {
-    const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
-    const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
-    const routes = (v.routes||[]).map(r => {
-      const bits = [r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
-      return `<li>${bits.join(' — ')}</li>`;
-    }).join('');
-    return `<div class="visit">${meta}${routes ? `<ul>${routes}</ul>` : ''}</div>`;
-  }).join('');
-  return `<div class="visits">${items}</div>`;
-}
-
 function popupHTML(c){
   const hasParking = c.parkingLat!==undefined && c.parkingLng!==undefined;
+  const hasVisits = c.visits && c.visits.length > 0;
   const rows = [
     ['type', typeLabel(c.type)],
     ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
@@ -444,8 +463,10 @@ function popupHTML(c){
   return `<div class="pop">
     <h3>${esc(c.name)}</h3>
     ${rows}
-    ${visitsHTML(c.visits)}
-    <button type="button" class="btn-add-visit-popup">+ Add visit</button>
+    <div class="pop-actions">
+      ${hasVisits ? `<button type="button" class="btn-view-visits-popup">View visits (${c.visits.length})</button>` : ''}
+      <button type="button" class="btn-add-visit-popup">+ Add visit</button>
+    </div>
     ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
   </div>`;
 }
@@ -474,11 +495,15 @@ function render(filter=""){
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
         ${c.visits&&c.visits.length?`<span class="tagpill">${c.visits.length} visit${c.visits.length>1?'s':''}</span>`:''}
       </div>
-      <button type="button" class="btn-add-visit-card">+ Add visit</button>`;
+      <div class="card-actions">
+        ${c.visits&&c.visits.length?`<button type="button" class="btn-view-visits-card">View visits</button>`:''}
+        <button type="button" class="btn-add-visit-card">+ Add visit</button>
+      </div>`;
     const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
     card.addEventListener('click', go);
     card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
     card.querySelector('.btn-add-visit-card').addEventListener('click', e => { e.stopPropagation(); openVisitModal(c); });
+    card.querySelector('.btn-view-visits-card')?.addEventListener('click', e => { e.stopPropagation(); openVisitsView(c); });
     listEl.appendChild(card);
   });
 
@@ -495,11 +520,21 @@ function updateStats(){
 document.getElementById('search').addEventListener('input', e => render(e.target.value));
 
 map.on('popupopen', e => {
-  const btn = e.popup.getElement()?.querySelector('.btn-add-visit-popup');
-  if(!btn || btn.dataset.bound) return;
-  btn.dataset.bound = '1';
+  const el = e.popup.getElement();
+  if(!el) return;
   const entry = markers.find(m => m.marker === e.popup._source);
-  if(entry) btn.addEventListener('click', () => openVisitModal(entry.crag));
+  if(!entry) return;
+
+  const addBtn = el.querySelector('.btn-add-visit-popup');
+  if(addBtn && !addBtn.dataset.bound){
+    addBtn.dataset.bound = '1';
+    addBtn.addEventListener('click', () => openVisitModal(entry.crag));
+  }
+  const viewBtn = el.querySelector('.btn-view-visits-popup');
+  if(viewBtn && !viewBtn.dataset.bound){
+    viewBtn.dataset.bound = '1';
+    viewBtn.addEventListener('click', () => openVisitsView(entry.crag));
+  }
 });
 
 /* ---------- Add-crag flow ---------- */
@@ -517,7 +552,7 @@ function arm(on){
   map.getContainer().style.cursor = on ? 'crosshair' : '';
 }
 addBtn.addEventListener('click', () => { closePicker(); arm(!armed); });
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); closePicker(); closeVisitModal(); }});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); closePicker(); closeVisitModal(); closeVisitsView(); }});
 
 map.on('click', e => {
   if(!armed) return;
@@ -798,6 +833,55 @@ document.getElementById('visitCopyBtn').addEventListener('click', () => {
 });
 document.getElementById('visitCloseBtn').addEventListener('click', closeVisitModal);
 visitOverlay.addEventListener('click', e => { if(e.target===visitOverlay) closeVisitModal(); });
+
+/* ---------- Visits browser (view routes/comments per visit) ---------- */
+const visitsViewOverlay = document.getElementById('visitsViewOverlay');
+const visitsViewTitle   = document.getElementById('visitsViewTitle');
+const visitsViewSub     = document.getElementById('visitsViewSub');
+const visitsTabs        = document.getElementById('visitsTabs');
+const visitDetail       = document.getElementById('visitDetail');
+
+function renderVisitDetail(v){
+  const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
+  const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
+  const routes = (v.routes||[]).map(r => {
+    const bits = [r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
+    return `<li>${bits.join(' — ')}</li>`;
+  }).join('');
+  visitDetail.innerHTML = meta + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');
+}
+
+function openVisitsView(crag){
+  closeModal(); closePicker(); closeVisitModal();
+  visitsViewTitle.textContent = crag.name;
+  const visits = crag.visits || [];
+  visitsViewSub.textContent = `${visits.length} visit${visits.length===1?'':'s'} logged`;
+  visitsTabs.innerHTML = '';
+  visits.forEach((v, i) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'visit-tab';
+    tab.textContent = v.date || `Visit ${i+1}`;
+    tab.addEventListener('click', () => {
+      [...visitsTabs.children].forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderVisitDetail(v);
+    });
+    visitsTabs.appendChild(tab);
+  });
+  if(visits.length){
+    visitsTabs.firstElementChild.classList.add('active');
+    renderVisitDetail(visits[0]);
+  } else {
+    visitDetail.innerHTML = '<div class="empty">No visits logged yet.</div>';
+  }
+  visitsViewOverlay.classList.add('show');
+}
+function closeVisitsView(){
+  visitsViewOverlay.classList.remove('show');
+}
+document.getElementById('visitsViewCloseBtn').addEventListener('click', closeVisitsView);
+visitsViewOverlay.addEventListener('click', e => { if(e.target===visitsViewOverlay) closeVisitsView(); });
 
 /* ---------- Go ---------- */
 resetVisits(visitsList, buildSnippet);

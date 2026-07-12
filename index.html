@@ -216,13 +216,6 @@
   .field input:focus, .field textarea:focus, .field select:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
   .field textarea{ resize:vertical; min-height:60px; }
 
-  .snippet{ padding:6px 22px 0; }
-  .snippet label{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sage); }
-  .snippet pre{
-    font-family:"Space Mono",monospace; font-size:12px; line-height:1.5;
-    background:var(--ink); color:#DDE7E1; border-radius:10px;
-    padding:12px 14px; margin:6px 0 0; overflow-x:auto; white-space:pre;
-  }
   .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
   .visit-modal-body{ padding:14px 22px 4px; display:flex; flex-direction:column; gap:10px; }
 
@@ -322,6 +315,7 @@
     <div class="chip"><b id="stat-multipitch">0</b><span>Multipitch</span></div>
   </div>
 
+  <button class="btn btn-ghost-invert" id="downloadBtn">⬇ Download crags.js</button>
   <button class="btn btn-ghost-invert" id="addByCoordsBtn">+ By coordinates</button>
   <button class="btn btn-add" id="addBtn">+ Add a crag</button>
 </header>
@@ -354,7 +348,7 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-head">
       <h2 id="modalTitle">Log a place</h2>
-      <p>Fill this in, then copy the snippet into the <span class="mono">CRAGS</span> list in <span class="mono">crags.js</span> and commit. That keeps your repo the source of truth.</p>
+      <p>Fill this in and click "Drop on map" to add it to this session. When you're done adding places, use "⬇ Download crags.js" in the header to export everything and replace the file in your repo.</p>
     </div>
     <form id="cragForm">
       <div class="field full">
@@ -379,12 +373,7 @@
         <button type="button" class="btn btn-ghost btn-add-visit" id="addVisitBtn">+ Add a visit</button>
       </div>
     </form>
-    <div class="snippet">
-      <label>Snippet for crags.js</label>
-      <pre id="snippet">Fill the form to generate…</pre>
-    </div>
     <div class="modal-foot">
-      <button class="btn btn-ghost" id="copyBtn" type="button">Copy snippet</button>
       <button class="btn btn-ghost" id="cancelBtn" type="button">Close</button>
       <button class="btn btn-add" id="dropBtn" type="button">Drop on map</button>
     </div>
@@ -402,13 +391,9 @@
       <div id="visitAddList"></div>
       <button type="button" class="btn btn-ghost btn-add-visit" id="addVisitBtn2">+ Add a visit</button>
     </div>
-    <div class="snippet">
-      <label>Snippet — paste into this place's <span class="mono">visits</span> array in <span class="mono">crags.js</span></label>
-      <pre id="visitSnippet">Fill in a visit to generate…</pre>
-    </div>
     <div class="modal-foot">
-      <button class="btn btn-ghost" id="visitCopyBtn" type="button">Copy snippet</button>
       <button class="btn btn-ghost" id="visitCloseBtn" type="button">Close</button>
+      <button class="btn btn-add" id="saveVisitBtn" type="button">Save visit</button>
     </div>
   </div>
 </div>
@@ -471,6 +456,25 @@ function popupHTML(c){
   </div>`;
 }
 function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function noop(){}
+
+function downloadCragsFile(){
+  const header = `/* =====================================================================\n   YOUR CRAGS — edit this list. Each entry is one place you've climbed.\n   Only name + lat + lng are required; the rest are optional flavour.\n   ===================================================================== */\n`;
+  const content = header + `const CRAGS = ${JSON.stringify(CRAGS, null, 2)};\n`;
+  const blob = new Blob([content], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'crags.js';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  const btn = document.getElementById('downloadBtn');
+  btn.textContent = 'Downloaded ✓';
+  setTimeout(() => { btn.textContent = '⬇ Download crags.js'; }, 1600);
+}
+document.getElementById('downloadBtn').addEventListener('click', downloadCragsFile);
 
 let markers = [];
 function render(filter=""){
@@ -558,11 +562,10 @@ map.on('click', e => {
   if(!armed) return;
   arm(false);
   form.reset();
-  resetVisits(visitsList, buildSnippet);
+  resetVisits(visitsList, noop);
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
   syncTempMarker();
-  buildSnippet();
   overlay.classList.add('show');
   form.name.focus();
 });
@@ -604,10 +607,9 @@ pickerNextBtn.addEventListener('click', () => {
   if(!pickerCoord) return;
   coordPicker.classList.remove('show');
   form.reset();
-  resetVisits(visitsList, buildSnippet);
+  resetVisits(visitsList, noop);
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
-  buildSnippet();
   overlay.classList.add('show');
   form.name.focus();
 });
@@ -722,9 +724,8 @@ function resetVisits(container, onChange){
 }
 
 document.getElementById('addVisitBtn').addEventListener('click', () => {
-  visitsList.appendChild(makeVisitBlock(buildSnippet));
+  visitsList.appendChild(makeVisitBlock(noop));
   renumberVisits(visitsList);
-  buildSnippet();
 });
 
 function collectVisits(container){
@@ -763,22 +764,8 @@ function readForm(){
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;
 }
-function buildSnippet(){
-  const o = readForm();
-  const parts = Object.entries(o).map(([k,v]) =>
-    `${k}:${typeof v==='number'?` ${v}`:` ${JSON.stringify(v)}`}`);
-  document.getElementById('snippet').textContent = `{ ${parts.join(', ')} },`;
-}
 form.addEventListener('input', e => {
-  buildSnippet();
   if(e.target.name === 'lat' || e.target.name === 'lng') syncTempMarker();
-});
-
-document.getElementById('copyBtn').addEventListener('click', () => {
-  const txt = document.getElementById('snippet').textContent;
-  navigator.clipboard?.writeText(txt);
-  const b = document.getElementById('copyBtn');
-  b.textContent = 'Copied ✓'; setTimeout(()=> b.textContent='Copy snippet', 1400);
 });
 
 document.getElementById('dropBtn').addEventListener('click', () => {
@@ -796,39 +783,33 @@ function closeModal(){
 }
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 
-/* ---------- Add-visit flow (for places already saved in crags.js) ---------- */
-const visitOverlay   = document.getElementById('visitOverlay');
-const visitAddList   = document.getElementById('visitAddList');
-const visitModalSub  = document.getElementById('visitModalSub');
-const visitSnippetEl = document.getElementById('visitSnippet');
-
-function buildVisitSnippet(){
-  const visits = collectVisits(visitAddList);
-  document.getElementById('visitSnippet').textContent = visits.length
-    ? visits.map(v => `  ${JSON.stringify(v)},`).join('\n')
-    : 'Fill in a visit to generate…';
-}
+/* ---------- Add-visit flow (for places already loaded from crags.js) ---------- */
+const visitOverlay  = document.getElementById('visitOverlay');
+const visitAddList  = document.getElementById('visitAddList');
+const visitModalSub = document.getElementById('visitModalSub');
+let visitTargetCrag = null;
 
 function openVisitModal(crag){
   closeModal(); closePicker();
-  visitModalSub.textContent = `Paste the snippet below into "${crag.name}"'s visits array in crags.js.`;
-  resetVisits(visitAddList, buildVisitSnippet);
-  buildVisitSnippet();
+  visitTargetCrag = crag;
+  visitModalSub.textContent = `Add a visit to "${crag.name}". It'll be included next time you download crags.js.`;
+  resetVisits(visitAddList, noop);
   visitOverlay.classList.add('show');
 }
 function closeVisitModal(){
   visitOverlay.classList.remove('show');
+  visitTargetCrag = null;
 }
 document.getElementById('addVisitBtn2').addEventListener('click', () => {
-  visitAddList.appendChild(makeVisitBlock(buildVisitSnippet));
+  visitAddList.appendChild(makeVisitBlock(noop));
   renumberVisits(visitAddList);
-  buildVisitSnippet();
 });
-visitAddList.addEventListener('input', buildVisitSnippet);
-document.getElementById('visitCopyBtn').addEventListener('click', () => {
-  navigator.clipboard?.writeText(visitSnippetEl.textContent);
-  const b = document.getElementById('visitCopyBtn');
-  b.textContent = 'Copied ✓'; setTimeout(()=> b.textContent='Copy snippet', 1400);
+document.getElementById('saveVisitBtn').addEventListener('click', () => {
+  const visits = collectVisits(visitAddList);
+  if(!visits.length){ alert('Fill in at least a date, who you were with, or a route first.'); return; }
+  visitTargetCrag.visits = (visitTargetCrag.visits || []).concat(visits);
+  closeVisitModal();
+  render(document.getElementById('search').value);
 });
 document.getElementById('visitCloseBtn').addEventListener('click', closeVisitModal);
 
@@ -882,7 +863,7 @@ document.getElementById('visitsViewCloseBtn').addEventListener('click', closeVis
 visitsViewOverlay.addEventListener('click', e => { if(e.target===visitsViewOverlay) closeVisitsView(); });
 
 /* ---------- Go ---------- */
-resetVisits(visitsList, buildSnippet);
+resetVisits(visitsList, noop);
 render();
 </script>
 </body>

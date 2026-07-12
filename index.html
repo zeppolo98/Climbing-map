@@ -552,7 +552,7 @@ function arm(on){
   map.getContainer().style.cursor = on ? 'crosshair' : '';
 }
 addBtn.addEventListener('click', () => { closePicker(); arm(!armed); });
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); closePicker(); closeVisitModal(); closeVisitsView(); }});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closePicker(); closeVisitsView(); }});
 
 map.on('click', e => {
   if(!armed) return;
@@ -795,7 +795,6 @@ function closeModal(){
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
 }
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
-overlay.addEventListener('click', e => { if(e.target===overlay) closeModal(); });
 
 /* ---------- Add-visit flow (for places already saved in crags.js) ---------- */
 const visitOverlay   = document.getElementById('visitOverlay');
@@ -832,7 +831,6 @@ document.getElementById('visitCopyBtn').addEventListener('click', () => {
   b.textContent = 'Copied ✓'; setTimeout(()=> b.textContent='Copy snippet', 1400);
 });
 document.getElementById('visitCloseBtn').addEventListener('click', closeVisitModal);
-visitOverlay.addEventListener('click', e => { if(e.target===visitOverlay) closeVisitModal(); });
 
 /* ---------- Visits browser (view routes/comments per visit) ---------- */
 const visitsViewOverlay = document.getElementById('visitsViewOverlay');

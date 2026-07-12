@@ -176,12 +176,12 @@
   .field{ display:flex; flex-direction:column; gap:5px; }
   .field.full{ grid-column:1 / -1; }
   .field label{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sage); }
-  .field input, .field textarea{
+  .field input, .field textarea, .field select{
     font-family:"Archivo",sans-serif; font-size:14px; padding:9px 11px;
     border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink);
   }
   .field .mono input, .field input.mono{ font-family:"Space Mono",monospace; }
-  .field input:focus, .field textarea:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .field input:focus, .field textarea:focus, .field select:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
   .field textarea{ resize:vertical; min-height:60px; }
 
   .snippet{ padding:6px 22px 0; }
@@ -255,6 +255,13 @@
       <p>Fill this in, then copy the snippet into the <span class="mono">CRAGS</span> list near the top of <span class="mono">index.html</span> and commit. That keeps your repo the source of truth.</p>
     </div>
     <form id="cragForm">
+      <div class="field full">
+        <label>Type</label>
+        <select name="type">
+          <option value="crag">Crag</option>
+          <option value="multipitch">Multipitch</option>
+        </select>
+      </div>
       <div class="field full"><label>Name</label><input name="name" required placeholder="Massone" /></div>
       <div class="field"><label>Area</label><input name="area" placeholder="Arco, Trentino" /></div>
       <div class="field"><label>Country</label><input name="country" placeholder="Italy" /></div>
@@ -264,6 +271,8 @@
       <div class="field"><label>Rock</label><input name="rock" placeholder="Limestone" /></div>
       <div class="field"><label>Visited</label><input name="visited" placeholder="2024" /></div>
       <div class="field"><label>Routes done</label><input name="routes" class="mono" placeholder="12" /></div>
+      <div class="field full"><label>Parking</label><input name="parking" placeholder="Small lay-by on SP12, 300m before the tunnel" /></div>
+      <div class="field full"><label>Access from parking</label><textarea name="access" placeholder="10min walk on marked path, cross the stream, gain the base of the wall on the left"></textarea></div>
       <div class="field full"><label>Notes</label><textarea name="notes" placeholder="Steep and polished, but the sunset from the top…"></textarea></div>
       <div class="field full"><label>Link (optional)</label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
     </form>
@@ -284,17 +293,7 @@
    YOUR CRAGS — edit this list. Each entry is one place you've climbed.
    Only name + lat + lng are required; the rest are optional flavour.
    ===================================================================== */
-const CRAGS = [
-  { name:"Massone",        area:"Arco, Trentino",   country:"Italy",   lat:45.9180, lng:10.8840, grade:"4c–8a",  rock:"Limestone", visited:"2023", routes:18, notes:"The classic Arco warm-up. Gets sun early, polished but endless." },
-  { name:"Finale Ligure",  area:"Liguria",          country:"Italy",   lat:44.1700, lng:8.3430,  grade:"4a–8b",  rock:"Limestone", visited:"2022", routes:24, notes:"Sea + rock. Pockety and technical, huge amount of easy-to-mid stuff." },
-  { name:"Sperlonga",      area:"Lazio",            country:"Italy",   lat:41.2640, lng:13.4350, grade:"5b–8a",  rock:"Limestone", visited:"2024", routes:9,  notes:"Winter sun on the coast. Tufa heaven when it's dry." },
-  { name:"San Vito Lo Capo",area:"Sicily",          country:"Italy",   lat:38.1740, lng:12.7350, grade:"4c–7c",  rock:"Limestone", visited:"2023", routes:14, notes:"Grey walls above turquoise water. Go in shoulder season." },
-  { name:"Val di Mello",   area:"Lombardy",         country:"Italy",   lat:46.2570, lng:9.6780,  grade:"5a–7a",  rock:"Granite",   visited:"2021", routes:6,  notes:"Slabby granite in a valley that looks fake it's so green." },
-  { name:"Cornalba",       area:"Bergamo, Lombardy",country:"Italy",   lat:45.8500, lng:9.7170,  grade:"6a–8c",  rock:"Limestone", visited:"2022", routes:11, notes:"Steep, hard, and proud. Not a beginner's day out." },
-  { name:"Kalymnos",       area:"Dodecanese",       country:"Greece",  lat:36.9960, lng:26.9650, grade:"4a–8c",  rock:"Limestone", visited:"2023", routes:31, notes:"The pilgrimage. Tufas, stalactites, and cheap gyros." },
-  { name:"Siurana",        area:"Catalonia",        country:"Spain",   lat:41.2560, lng:0.9300,  grade:"5a–9a",  rock:"Limestone", visited:"2024", routes:16, notes:"Vertical and crimpy. Humbling grades, gorgeous village." },
-  { name:"Railay",         area:"Krabi",            country:"Thailand",lat:8.0050,  lng:98.8380, grade:"5+–8a",  rock:"Limestone", visited:"2019", routes:8,  notes:"Climb, swim, repeat. Sweaty but unreal setting." }
-];
+const CRAGS = [];
 
 /* ---------- Map setup ---------- */
 const map = L.map('map', { zoomControl:true }).setView([42.5, 12.5], 5); // starts on Italy
@@ -313,8 +312,11 @@ function pinIcon(temp){
   return L.divIcon({ html, className:'', iconSize:[30,40], iconAnchor:[15,40], popupAnchor:[0,-38] });
 }
 
+function typeLabel(t){ return t==='multipitch' ? 'Multipitch' : 'Crag'; }
+
 function popupHTML(c){
   const rows = [
+    ['type', typeLabel(c.type)],
     ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
     c.grade   && ['grade', c.grade],
     c.rock    && ['rock', c.rock],
@@ -325,6 +327,8 @@ function popupHTML(c){
     <h3>${esc(c.name)}</h3>
     ${(c.area||c.country) ? `<div class="place">${esc([c.area,c.country].filter(Boolean).join(' · '))}</div>` : ''}
     ${rows}
+    ${c.parking ? `<div class="notes"><b>Parking:</b> ${esc(c.parking)}</div>` : ''}
+    ${c.access ? `<div class="notes"><b>Access:</b> ${esc(c.access)}</div>` : ''}
     ${c.notes ? `<div class="notes">${esc(c.notes)}</div>` : ''}
     ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
   </div>`;
@@ -351,6 +355,7 @@ function render(filter=""){
     card.innerHTML = `<h3>${esc(c.name)}</h3>
       ${(c.area||c.country)?`<div class="place">${esc([c.area,c.country].filter(Boolean).join(' · '))}</div>`:''}
       <div class="meta">
+        <span class="tagpill">${esc(typeLabel(c.type))}</span>
         ${c.grade?`<span class="tagpill grade">${esc(c.grade)}</span>`:''}
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
         ${c.visited?`<span class="tagpill">${esc(c.visited)}</span>`:''}
@@ -407,10 +412,11 @@ map.on('click', e => {
 
 function readForm(){
   const g = n => form[n].value.trim();
-  const o = { name:g('name'), area:g('area'), country:g('country'),
+  const o = { type:g('type'), name:g('name'), area:g('area'), country:g('country'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               grade:g('grade'), rock:g('rock'), visited:g('visited'),
-              routes:g('routes')?Number(g('routes')):undefined, notes:g('notes'), link:g('link') };
+              routes:g('routes')?Number(g('routes')):undefined,
+              parking:g('parking'), access:g('access'), notes:g('notes'), link:g('link') };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;
 }

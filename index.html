@@ -266,6 +266,10 @@
       <div class="field full"><label>Name</label><input name="name" required placeholder="Massone" /></div>
       <div class="field"><label>Area</label><input name="area" placeholder="Arco, Trentino" /></div>
       <div class="field"><label>Country</label><input name="country" placeholder="Italy" /></div>
+      <div class="field full">
+        <label>Paste coordinates</label>
+        <input name="coordsPaste" class="mono" placeholder="46.076245, 9.435389  or  46°04'34.5&quot;N 9°26'07.4&quot;E" />
+      </div>
       <div class="field"><label>Latitude</label><input name="lat" class="mono" required placeholder="45.9180" /></div>
       <div class="field"><label>Longitude</label><input name="lng" class="mono" required placeholder="10.8840" /></div>
       <div class="field"><label>Grade range</label><input name="grade" class="mono" placeholder="5a–7b" /></div>
@@ -428,6 +432,38 @@ function syncTempMarker(){
   }
 }
 
+function parseCoordinates(str){
+  str = (str || '').trim();
+  if(!str) return null;
+
+  // Decimal pair: "46.076245, 9.435389" / "46.076245 9.435389" / "46.076245N, 9.435389E"
+  let m = str.match(/^(-?\d+(?:\.\d+)?)\s*°?\s*([NSns])?\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)\s*°?\s*([EWew])?$/);
+  if(m){
+    let lat = parseFloat(m[1]), lng = parseFloat(m[3]);
+    if(m[2] && /s/i.test(m[2])) lat = -Math.abs(lat);
+    if(m[4] && /w/i.test(m[4])) lng = -Math.abs(lng);
+    if(Math.abs(lat)<=90 && Math.abs(lng)<=180) return { lat, lng };
+  }
+
+  // DMS: "46°04'34.5"N 9°26'07.4"E" (minutes/seconds optional, order-independent)
+  const dmsRe = /(\d+(?:\.\d+)?)\s*°\s*(?:(\d+(?:\.\d+)?)\s*['′]\s*)?(?:(\d+(?:\.\d+)?)\s*["″]\s*)?\s*([NSEWnsew])/g;
+  const matches = [...str.matchAll(dmsRe)];
+  if(matches.length >= 2){
+    let lat = null, lng = null;
+    for(const mm of matches){
+      const deg = parseFloat(mm[1]) || 0;
+      const min = parseFloat(mm[2]) || 0;
+      const sec = parseFloat(mm[3]) || 0;
+      const hemi = mm[4].toUpperCase();
+      let val = deg + min/60 + sec/3600;
+      if(hemi==='S' || hemi==='W') val = -val;
+      if(hemi==='N' || hemi==='S') lat = val; else lng = val;
+    }
+    if(lat!==null && lng!==null) return { lat, lng };
+  }
+  return null;
+}
+
 function readForm(){
   const g = n => form[n].value.trim();
   const o = { type:g('type'), name:g('name'), area:g('area'), country:g('country'),
@@ -445,6 +481,14 @@ function buildSnippet(){
   document.getElementById('snippet').textContent = `{ ${parts.join(', ')} },`;
 }
 form.addEventListener('input', e => {
+  if(e.target.name === 'coordsPaste'){
+    const parsed = parseCoordinates(e.target.value);
+    if(parsed){
+      form.lat.value = parsed.lat.toFixed(6);
+      form.lng.value = parsed.lng.toFixed(6);
+      syncTempMarker();
+    }
+  }
   buildSnippet();
   if(e.target.name === 'lat' || e.target.name === 'lng') syncTempMarker();
 });

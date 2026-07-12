@@ -175,6 +175,7 @@
     border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); width:100%;
   }
   .coord-picker input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .coord-picker-hint{ font-size:12px; color:var(--marker); line-height:1.4; min-height:0; }
   .coord-picker .btn-add:disabled{ opacity:.4; cursor:not-allowed; }
   .coord-picker .btn-add:disabled:hover{ background:var(--marker); transform:none; }
 
@@ -278,6 +279,7 @@
       <button type="button" id="coordPickerClose" aria-label="Close">×</button>
     </div>
     <input id="pickerCoords" class="mono" placeholder="46.076245, 9.435389 or 46°04'34.5&quot;N 9°26'07.4&quot;E" />
+    <div class="coord-picker-hint" id="pickerHint"></div>
     <button class="btn btn-add" id="pickerNextBtn" type="button" disabled>Add details →</button>
   </div>
 </div>
@@ -447,6 +449,7 @@ map.on('click', e => {
 
 const coordPicker   = document.getElementById('coordPicker');
 const pickerInput   = document.getElementById('pickerCoords');
+const pickerHint    = document.getElementById('pickerHint');
 const pickerNextBtn = document.getElementById('pickerNextBtn');
 let pickerCoord = null;
 
@@ -454,6 +457,7 @@ function openPicker(){
   closeModal();
   arm(false);
   pickerInput.value = '';
+  pickerHint.textContent = '';
   pickerCoord = null;
   pickerNextBtn.disabled = true;
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
@@ -470,6 +474,9 @@ document.getElementById('coordPickerClose').addEventListener('click', closePicke
 pickerInput.addEventListener('input', () => {
   pickerCoord = parseCoordinates(pickerInput.value);
   pickerNextBtn.disabled = !pickerCoord;
+  pickerHint.textContent = (!pickerCoord && pickerInput.value.trim())
+    ? "Couldn't read that as one coordinate — mixing decimal degrees with minutes/seconds is ambiguous. Use either decimal (46.076245, 9.435389) or DMS (46°04'34.5\"N 9°26'07.4\"E), not both."
+    : '';
   if(pickerCoord) syncTempMarker(pickerCoord.lat, pickerCoord.lng);
 });
 
@@ -513,12 +520,18 @@ function parseCoordinates(str){
     if(Math.abs(lat)<=90 && Math.abs(lng)<=180) return { lat, lng };
   }
 
-  // DMS: "46°04'34.5"N 9°26'07.4"E" (minutes/seconds optional, order-independent)
+  // DMS: "46°04'34.5"N 9°26'07.4"E" (minutes/seconds optional, order-independent).
+  // Degrees must be a whole number when minutes/seconds are present — a decimal
+  // degree value (e.g. "46.076245°") is already a complete coordinate on its own,
+  // so combining it with extra minutes/seconds is ambiguous and gets rejected
+  // rather than silently double-counted into the wrong spot.
   const dmsRe = /(\d+(?:\.\d+)?)\s*°\s*(?:(\d+(?:\.\d+)?)\s*['′]\s*)?(?:(\d+(?:\.\d+)?)\s*["″]\s*)?\s*([NSEWnsew])/g;
   const matches = [...str.matchAll(dmsRe)];
   if(matches.length >= 2){
     let lat = null, lng = null;
     for(const mm of matches){
+      const hasMinSec = mm[2] !== undefined || mm[3] !== undefined;
+      if(mm[1].includes('.') && hasMinSec) return null;
       const deg = parseFloat(mm[1]) || 0;
       const min = parseFloat(mm[2]) || 0;
       const sec = parseFloat(mm[3]) || 0;

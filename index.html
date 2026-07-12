@@ -253,7 +253,7 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-head">
       <h2 id="modalTitle">Log a crag</h2>
-      <p>Fill this in, then copy the snippet into the <span class="mono">CRAGS</span> list near the top of <span class="mono">index.html</span> and commit. That keeps your repo the source of truth.</p>
+      <p>Fill this in, then copy the snippet into the <span class="mono">CRAGS</span> list in <span class="mono">crags.js</span> and commit. That keeps your repo the source of truth.</p>
     </div>
     <form id="cragForm">
       <div class="field full">
@@ -278,7 +278,7 @@
       <div class="field full"><label>Link (optional)</label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
     </form>
     <div class="snippet">
-      <label>Snippet for your CRAGS list</label>
+      <label>Snippet for crags.js</label>
       <pre id="snippet">Fill the form to generate…</pre>
     </div>
     <div class="modal-foot">
@@ -289,13 +289,8 @@
   </div>
 </div>
 
+<script src="crags.js"></script>
 <script>
-/* =====================================================================
-   YOUR CRAGS — edit this list. Each entry is one place you've climbed.
-   Only name + lat + lng are required; the rest are optional flavour.
-   ===================================================================== */
-const CRAGS = [];
-
 /* ---------- Map setup ---------- */
 const map = L.map('map', { zoomControl:true }).setView([42.5, 12.5], 5); // starts on Italy
 

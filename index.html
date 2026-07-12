@@ -231,6 +231,7 @@
     <div class="chip"><b id="stat-routes">0</b><span>Routes</span></div>
   </div>
 
+  <button class="btn btn-ghost" id="addByCoordsBtn">+ By coordinates</button>
   <button class="btn btn-add" id="addBtn">+ Add a crag</button>
 </header>
 
@@ -403,12 +404,34 @@ map.on('click', e => {
   form.reset();
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
-  if(tempMarker) map.removeLayer(tempMarker);
-  tempMarker = L.marker(e.latlng, { icon:pinIcon(true) }).addTo(map);
+  syncTempMarker();
   buildSnippet();
   overlay.classList.add('show');
   form.name.focus();
 });
+
+document.getElementById('addByCoordsBtn').addEventListener('click', () => {
+  arm(false);
+  form.reset();
+  if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+  buildSnippet();
+  overlay.classList.add('show');
+  form.name.focus();
+});
+
+function syncTempMarker(){
+  const lat = parseFloat(form.lat.value);
+  const lng = parseFloat(form.lng.value);
+  if(isNaN(lat) || isNaN(lng)) return;
+  const latlng = [lat, lng];
+  if(tempMarker){
+    tempMarker.setLatLng(latlng);
+    map.panTo(latlng);
+  } else {
+    tempMarker = L.marker(latlng, { icon:pinIcon(true) }).addTo(map);
+    map.flyTo(latlng, Math.max(map.getZoom(), 11), { duration:.6 });
+  }
+}
 
 function readForm(){
   const g = n => form[n].value.trim();
@@ -426,7 +449,10 @@ function buildSnippet(){
     `${k}:${typeof v==='number'?` ${v}`:` ${JSON.stringify(v)}`}`);
   document.getElementById('snippet').textContent = `{ ${parts.join(', ')} },`;
 }
-form.addEventListener('input', buildSnippet);
+form.addEventListener('input', e => {
+  buildSnippet();
+  if(e.target.name === 'lat' || e.target.name === 'lng') syncTempMarker();
+});
 
 document.getElementById('copyBtn').addEventListener('click', () => {
   const txt = document.getElementById('snippet').textContent;

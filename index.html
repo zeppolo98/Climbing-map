@@ -122,14 +122,12 @@
   .card:hover{ transform:translateX(3px); box-shadow:var(--shadow); border-color:var(--sage); }
   .card:focus-visible{ outline:3px solid var(--marker-2); outline-offset:2px; }
   .card h3{ font-family:"Fraunces",serif; font-weight:600; font-size:18px; margin:0 0 2px; }
-  .card .place{ font-size:12.5px; color:var(--pine-2); margin-bottom:8px; }
   .card .meta{ display:flex; flex-wrap:wrap; gap:6px; }
   .tagpill{
     font-family:"Space Mono",monospace; font-size:11px;
     padding:3px 8px; border-radius:999px; background:var(--limestone);
     border:1px solid var(--line);
   }
-  .tagpill.grade{ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
 
   /* ---------- Map ---------- */
   #map{ flex:1; background:#eee; }
@@ -143,12 +141,10 @@
   .leaflet-popup-content-wrapper{ border-radius:14px; padding:2px; box-shadow:var(--shadow); }
   .leaflet-popup-content{ margin:14px 16px; min-width:210px; }
   .pop h3{ font-family:"Fraunces",serif; font-weight:600; font-size:20px; margin:0 0 2px; }
-  .pop .place{ font-size:13px; color:var(--pine-2); margin-bottom:10px; }
   .pop .row{ font-family:"Space Mono",monospace; font-size:12px; color:var(--ink);
              display:flex; justify-content:space-between; gap:14px; padding:3px 0;
              border-top:1px dashed var(--line); }
   .pop .row span:first-child{ color:var(--sage); }
-  .pop .notes{ margin-top:10px; font-size:13px; line-height:1.45; color:var(--pine-2); }
   .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
           display:inline-block; margin-top:10px; }
   .pop a:hover{ text-decoration:underline; }
@@ -254,9 +250,9 @@
   </div>
 
   <div class="stats">
+    <div class="chip"><b id="stat-total">0</b><span>Places</span></div>
     <div class="chip"><b id="stat-crags">0</b><span>Crags</span></div>
-    <div class="chip"><b id="stat-countries">0</b><span>Countries</span></div>
-    <div class="chip"><b id="stat-routes">0</b><span>Routes</span></div>
+    <div class="chip"><b id="stat-multipitch">0</b><span>Multipitch</span></div>
   </div>
 
   <button class="btn btn-ghost-invert" id="addByCoordsBtn">+ By coordinates</button>
@@ -266,7 +262,7 @@
 <div class="stage">
   <aside>
     <div class="search">
-      <input id="search" type="search" placeholder="Search crags, areas, countries…" aria-label="Search crags" />
+      <input id="search" type="search" placeholder="Search by name or rock type…" aria-label="Search places" />
     </div>
     <div class="list-head"><span>Logbook</span><span id="list-count" class="mono">0</span></div>
     <div class="list" id="list"></div>
@@ -290,7 +286,7 @@
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-head">
-      <h2 id="modalTitle">Log a crag</h2>
+      <h2 id="modalTitle">Log a place</h2>
       <p>Fill this in, then copy the snippet into the <span class="mono">CRAGS</span> list in <span class="mono">crags.js</span> and commit. That keeps your repo the source of truth.</p>
     </div>
     <form id="cragForm">
@@ -302,22 +298,14 @@
         </select>
       </div>
       <div class="field full"><label>Name</label><input name="name" required placeholder="Massone" /></div>
-      <div class="field"><label>Area</label><input name="area" placeholder="Arco, Trentino" /></div>
-      <div class="field"><label>Country</label><input name="country" placeholder="Italy" /></div>
-      <div class="field full">
-        <label>Paste coordinates</label>
-        <input name="coordsPaste" class="mono" placeholder="46.076245, 9.435389  or  46°04'34.5&quot;N 9°26'07.4&quot;E" />
-      </div>
       <div class="field"><label>Latitude</label><input name="lat" class="mono" required placeholder="45.9180" /></div>
       <div class="field"><label>Longitude</label><input name="lng" class="mono" required placeholder="10.8840" /></div>
-      <div class="field"><label>Grade range</label><input name="grade" class="mono" placeholder="5a–7b" /></div>
-      <div class="field"><label>Rock</label><input name="rock" placeholder="Limestone" /></div>
-      <div class="field"><label>Visited</label><input name="visited" placeholder="2024" /></div>
-      <div class="field"><label>Routes done</label><input name="routes" class="mono" placeholder="12" /></div>
-      <div class="field full"><label>Parking</label><input name="parking" placeholder="Small lay-by on SP12, 300m before the tunnel" /></div>
-      <div class="field full"><label>Access from parking</label><textarea name="access" placeholder="10min walk on marked path, cross the stream, gain the base of the wall on the left"></textarea></div>
-      <div class="field full"><label>Notes</label><textarea name="notes" placeholder="Steep and polished, but the sunset from the top…"></textarea></div>
-      <div class="field full"><label>Link (optional)</label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
+      <div class="field full">
+        <label>Parking coordinates <span style="opacity:.6">(optional)</span></label>
+        <input name="parkingCoords" class="mono" placeholder="46.076245, 9.435389  or  46°04'34.5&quot;N 9°26'07.4&quot;E" />
+      </div>
+      <div class="field full"><label>Rock <span style="opacity:.6">(optional)</span></label><input name="rock" placeholder="Limestone" /></div>
+      <div class="field full"><label>Link <span style="opacity:.6">(optional)</span></label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
     </form>
     <div class="snippet">
       <label>Snippet for crags.js</label>
@@ -353,21 +341,16 @@ function pinIcon(temp){
 function typeLabel(t){ return t==='multipitch' ? 'Multipitch' : 'Crag'; }
 
 function popupHTML(c){
+  const hasParking = c.parkingLat!==undefined && c.parkingLng!==undefined;
   const rows = [
     ['type', typeLabel(c.type)],
     ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
-    c.grade   && ['grade', c.grade],
-    c.rock    && ['rock', c.rock],
-    c.visited && ['visited', c.visited],
-    (c.routes || c.routes===0) && ['routes', c.routes]
+    c.rock && ['rock', c.rock],
+    hasParking && ['parking', `${(+c.parkingLat).toFixed(4)}, ${(+c.parkingLng).toFixed(4)}`]
   ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join('');
   return `<div class="pop">
     <h3>${esc(c.name)}</h3>
-    ${(c.area||c.country) ? `<div class="place">${esc([c.area,c.country].filter(Boolean).join(' · '))}</div>` : ''}
     ${rows}
-    ${c.parking ? `<div class="notes"><b>Parking:</b> ${esc(c.parking)}</div>` : ''}
-    ${c.access ? `<div class="notes"><b>Access:</b> ${esc(c.access)}</div>` : ''}
-    ${c.notes ? `<div class="notes">${esc(c.notes)}</div>` : ''}
     ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
   </div>`;
 }
@@ -382,7 +365,7 @@ function render(filter=""){
   const f = filter.trim().toLowerCase();
 
   const shown = CRAGS.filter(c =>
-    !f || [c.name,c.area,c.country,c.rock].some(v => v && v.toLowerCase().includes(f)));
+    !f || [c.name,c.rock].some(v => v && v.toLowerCase().includes(f)));
 
   shown.forEach((c) => {
     const marker = L.marker([c.lat, c.lng], { icon:pinIcon() }).addTo(map).bindPopup(popupHTML(c));
@@ -391,12 +374,9 @@ function render(filter=""){
     const card = document.createElement('div');
     card.className = 'card'; card.tabIndex = 0;
     card.innerHTML = `<h3>${esc(c.name)}</h3>
-      ${(c.area||c.country)?`<div class="place">${esc([c.area,c.country].filter(Boolean).join(' · '))}</div>`:''}
       <div class="meta">
         <span class="tagpill">${esc(typeLabel(c.type))}</span>
-        ${c.grade?`<span class="tagpill grade">${esc(c.grade)}</span>`:''}
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
-        ${c.visited?`<span class="tagpill">${esc(c.visited)}</span>`:''}
       </div>`;
     const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
     card.addEventListener('click', go);
@@ -409,11 +389,9 @@ function render(filter=""){
 }
 
 function updateStats(){
-  document.getElementById('stat-crags').textContent = CRAGS.length;
-  document.getElementById('stat-countries').textContent =
-    new Set(CRAGS.map(c => c.country).filter(Boolean)).size;
-  document.getElementById('stat-routes').textContent =
-    CRAGS.reduce((n,c) => n + (Number(c.routes)||0), 0);
+  document.getElementById('stat-total').textContent = CRAGS.length;
+  document.getElementById('stat-crags').textContent = CRAGS.filter(c => c.type!=='multipitch').length;
+  document.getElementById('stat-multipitch').textContent = CRAGS.filter(c => c.type==='multipitch').length;
 }
 
 document.getElementById('search').addEventListener('input', e => render(e.target.value));
@@ -547,11 +525,12 @@ function parseCoordinates(str){
 
 function readForm(){
   const g = n => form[n].value.trim();
-  const o = { type:g('type'), name:g('name'), area:g('area'), country:g('country'),
+  const parking = parseCoordinates(g('parkingCoords'));
+  const o = { type:g('type'), name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
-              grade:g('grade'), rock:g('rock'), visited:g('visited'),
-              routes:g('routes')?Number(g('routes')):undefined,
-              parking:g('parking'), access:g('access'), notes:g('notes'), link:g('link') };
+              parkingLat: parking ? parking.lat : undefined,
+              parkingLng: parking ? parking.lng : undefined,
+              rock:g('rock'), link:g('link') };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;
 }
@@ -562,14 +541,6 @@ function buildSnippet(){
   document.getElementById('snippet').textContent = `{ ${parts.join(', ')} },`;
 }
 form.addEventListener('input', e => {
-  if(e.target.name === 'coordsPaste'){
-    const parsed = parseCoordinates(e.target.value);
-    if(parsed){
-      form.lat.value = parsed.lat.toFixed(6);
-      form.lng.value = parsed.lng.toFixed(6);
-      syncTempMarker();
-    }
-  }
   buildSnippet();
   if(e.target.name === 'lat' || e.target.name === 'lng') syncTempMarker();
 });

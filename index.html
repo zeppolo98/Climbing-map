@@ -88,9 +88,11 @@
   .btn-add.armed{ background:var(--ink); }
   .btn-ghost{ background:transparent; color:var(--pine); border:1px solid var(--line); }
   .btn-ghost:hover{ background:var(--limestone); }
+  .btn-ghost-invert{ background:rgba(246,243,235,.08); color:var(--chalk); border:1px solid rgba(246,243,235,.28); z-index:1; }
+  .btn-ghost-invert:hover{ background:rgba(246,243,235,.18); }
 
   /* ---------- Layout ---------- */
-  .stage{ display:flex; height:calc(100% - var(--header-h)); }
+  .stage{ display:flex; height:calc(100% - var(--header-h)); position:relative; }
   aside{
     width:var(--sidebar-w); flex:0 0 var(--sidebar-w);
     background:var(--limestone);
@@ -150,6 +152,31 @@
   .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
           display:inline-block; margin-top:10px; }
   .pop a:hover{ text-decoration:underline; }
+
+  /* ---------- Coordinate picker ---------- */
+  .coord-picker{
+    position:absolute; right:20px; bottom:20px; z-index:900; width:280px;
+    background:var(--chalk); border:1px solid var(--line); border-radius:14px;
+    box-shadow:var(--shadow); padding:14px 16px;
+    display:none; flex-direction:column; gap:10px;
+  }
+  .coord-picker.show{ display:flex; }
+  .coord-picker-head{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:"Fraunces",serif; font-weight:600; font-size:15px;
+  }
+  .coord-picker-head button{
+    background:none; border:none; font-size:20px; line-height:1;
+    cursor:pointer; color:var(--sage); padding:0;
+  }
+  .coord-picker-head button:hover{ color:var(--ink); }
+  .coord-picker input{
+    font-family:"Space Mono",monospace; font-size:13px; padding:9px 11px;
+    border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); width:100%;
+  }
+  .coord-picker input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .coord-picker .btn-add:disabled{ opacity:.4; cursor:not-allowed; }
+  .coord-picker .btn-add:disabled:hover{ background:var(--marker); transform:none; }
 
   /* ---------- Add-crag modal ---------- */
   .toast{
@@ -231,7 +258,7 @@
     <div class="chip"><b id="stat-routes">0</b><span>Routes</span></div>
   </div>
 
-  <button class="btn btn-ghost" id="addByCoordsBtn">+ By coordinates</button>
+  <button class="btn btn-ghost-invert" id="addByCoordsBtn">+ By coordinates</button>
   <button class="btn btn-add" id="addBtn">+ Add a crag</button>
 </header>
 
@@ -244,6 +271,15 @@
     <div class="list" id="list"></div>
   </aside>
   <div id="map"></div>
+
+  <div class="coord-picker" id="coordPicker">
+    <div class="coord-picker-head">
+      <span>Place a pin</span>
+      <button type="button" id="coordPickerClose" aria-label="Close">×</button>
+    </div>
+    <input id="pickerCoords" class="mono" placeholder="46.076245, 9.435389 or 46°04'34.5&quot;N 9°26'07.4&quot;E" />
+    <button class="btn btn-add" id="pickerNextBtn" type="button" disabled>Add details →</button>
+  </div>
 </div>
 
 <div class="toast" id="toast">📍 Click the map where the crag is — <b>Esc</b> to cancel</div>
@@ -394,8 +430,8 @@ function arm(on){
   toast.classList.toggle('show', on);
   map.getContainer().style.cursor = on ? 'crosshair' : '';
 }
-addBtn.addEventListener('click', () => arm(!armed));
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); }});
+addBtn.addEventListener('click', () => { closePicker(); arm(!armed); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); closePicker(); }});
 
 map.on('click', e => {
   if(!armed) return;
@@ -409,18 +445,50 @@ map.on('click', e => {
   form.name.focus();
 });
 
-document.getElementById('addByCoordsBtn').addEventListener('click', () => {
+const coordPicker   = document.getElementById('coordPicker');
+const pickerInput   = document.getElementById('pickerCoords');
+const pickerNextBtn = document.getElementById('pickerNextBtn');
+let pickerCoord = null;
+
+function openPicker(){
+  closeModal();
   arm(false);
-  form.reset();
+  pickerInput.value = '';
+  pickerCoord = null;
+  pickerNextBtn.disabled = true;
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+  coordPicker.classList.add('show');
+  pickerInput.focus();
+}
+function closePicker(){
+  coordPicker.classList.remove('show');
+  if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+}
+document.getElementById('addByCoordsBtn').addEventListener('click', openPicker);
+document.getElementById('coordPickerClose').addEventListener('click', closePicker);
+
+pickerInput.addEventListener('input', () => {
+  pickerCoord = parseCoordinates(pickerInput.value);
+  pickerNextBtn.disabled = !pickerCoord;
+  if(pickerCoord) syncTempMarker(pickerCoord.lat, pickerCoord.lng);
+});
+
+pickerNextBtn.addEventListener('click', () => {
+  if(!pickerCoord) return;
+  coordPicker.classList.remove('show');
+  form.reset();
+  form.lat.value = pickerCoord.lat.toFixed(6);
+  form.lng.value = pickerCoord.lng.toFixed(6);
   buildSnippet();
   overlay.classList.add('show');
   form.name.focus();
 });
 
-function syncTempMarker(){
-  const lat = parseFloat(form.lat.value);
-  const lng = parseFloat(form.lng.value);
+function syncTempMarker(lat, lng){
+  if(lat===undefined || lng===undefined){
+    lat = parseFloat(form.lat.value);
+    lng = parseFloat(form.lng.value);
+  }
   if(isNaN(lat) || isNaN(lng)) return;
   const latlng = [lat, lng];
   if(tempMarker){

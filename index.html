@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crag Log — every rock I've touched</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<!-- Fonts: Fraunces (display), Archivo (UI), Space Mono (survey data) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:      #16211E;   /* deep pine, near-black */
+    --pine:     #23433C;   /* chrome green */
+    --pine-2:   #2E564D;
+    --sage:     #7E9A8C;   /* muted supporting */
+    --limestone:#E9E3D5;   /* warm panel paper */
+    --chalk:    #F6F3EB;   /* lightest surface */
+    --marker:   #C1372F;   /* rope red — the one loud color */
+    --marker-2: #E0574E;
+    --line:     rgba(22,33,30,.14);
+    --shadow:   0 1px 2px rgba(22,33,30,.10), 0 8px 24px rgba(22,33,30,.10);
+    --header-h: 76px;
+    --sidebar-w: 340px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    font-family:"Archivo", system-ui, sans-serif;
+    color:var(--ink);
+    background:var(--chalk);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .mono{ font-family:"Space Mono", ui-monospace, monospace; }
+
+  /* ---------- Header ---------- */
+  header{
+    position:relative;
+    height:var(--header-h);
+    display:flex; align-items:center; gap:20px;
+    padding:0 22px;
+    background:var(--pine);
+    color:var(--chalk);
+    z-index:1000;
+    overflow:hidden;
+  }
+  header .contours{ position:absolute; inset:0; opacity:.14; pointer-events:none; }
+  .brand{ display:flex; align-items:baseline; gap:12px; z-index:1; }
+  .brand h1{
+    font-family:"Fraunces", serif;
+    font-weight:900; font-size:26px; letter-spacing:-.01em;
+    margin:0; line-height:1;
+  }
+  .brand .tag{
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--sage);
+  }
+  .stats{ display:flex; gap:8px; margin-left:auto; z-index:1; }
+  .chip{
+    display:flex; flex-direction:column; align-items:center;
+    padding:8px 14px; border-radius:10px;
+    background:rgba(246,243,235,.08);
+    border:1px solid rgba(246,243,235,.14);
+    min-width:62px;
+  }
+  .chip b{ font-family:"Space Mono", monospace; font-size:19px; line-height:1; }
+  .chip span{ font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sage); margin-top:5px; }
+
+  .btn{
+    font-family:"Archivo", sans-serif; font-weight:600; font-size:14px;
+    border:none; border-radius:10px; padding:11px 16px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .12s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .btn:focus-visible{ outline:3px solid var(--marker-2); outline-offset:2px; }
+  .btn-add{ background:var(--marker); color:#fff; z-index:1; box-shadow:var(--shadow); }
+  .btn-add:hover{ background:var(--marker-2); transform:translateY(-1px); }
+  .btn-add.armed{ background:var(--ink); }
+  .btn-ghost{ background:transparent; color:var(--pine); border:1px solid var(--line); }
+  .btn-ghost:hover{ background:var(--limestone); }
+
+  /* ---------- Layout ---------- */
+  .stage{ display:flex; height:calc(100% - var(--header-h)); }
+  aside{
+    width:var(--sidebar-w); flex:0 0 var(--sidebar-w);
+    background:var(--limestone);
+    border-right:1px solid var(--line);
+    display:flex; flex-direction:column;
+    z-index:600;
+  }
+  .search{ padding:16px 16px 12px; }
+  .search input{
+    width:100%; font-family:"Archivo",sans-serif; font-size:14px;
+    padding:11px 13px; border-radius:10px; border:1px solid var(--line);
+    background:var(--chalk); color:var(--ink);
+  }
+  .search input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .list-head{
+    padding:0 18px 8px; font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--sage);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .list{ overflow-y:auto; padding:0 10px 20px; flex:1; }
+
+  .card{
+    background:var(--chalk); border:1px solid var(--line); border-radius:12px;
+    padding:13px 14px; margin:8px 6px; cursor:pointer;
+    transition:transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover{ transform:translateX(3px); box-shadow:var(--shadow); border-color:var(--sage); }
+  .card:focus-visible{ outline:3px solid var(--marker-2); outline-offset:2px; }
+  .card h3{ font-family:"Fraunces",serif; font-weight:600; font-size:18px; margin:0 0 2px; }
+  .card .place{ font-size:12.5px; color:var(--pine-2); margin-bottom:8px; }
+  .card .meta{ display:flex; flex-wrap:wrap; gap:6px; }
+  .tagpill{
+    font-family:"Space Mono",monospace; font-size:11px;
+    padding:3px 8px; border-radius:999px; background:var(--limestone);
+    border:1px solid var(--line);
+  }
+  .tagpill.grade{ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
+
+  /* ---------- Map ---------- */
+  #map{ flex:1; background:#eee; }
+  .leaflet-container{ font-family:"Archivo",sans-serif; }
+
+  .pin{ filter:drop-shadow(0 3px 3px rgba(22,33,30,.35)); }
+  .pin svg{ display:block; }
+  .pin.temp svg path{ fill:var(--pine); }
+
+  /* Popup */
+  .leaflet-popup-content-wrapper{ border-radius:14px; padding:2px; box-shadow:var(--shadow); }
+  .leaflet-popup-content{ margin:14px 16px; min-width:210px; }
+  .pop h3{ font-family:"Fraunces",serif; font-weight:600; font-size:20px; margin:0 0 2px; }
+  .pop .place{ font-size:13px; color:var(--pine-2); margin-bottom:10px; }
+  .pop .row{ font-family:"Space Mono",monospace; font-size:12px; color:var(--ink);
+             display:flex; justify-content:space-between; gap:14px; padding:3px 0;
+             border-top:1px dashed var(--line); }
+  .pop .row span:first-child{ color:var(--sage); }
+  .pop .notes{ margin-top:10px; font-size:13px; line-height:1.45; color:var(--pine-2); }
+  .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
+          display:inline-block; margin-top:10px; }
+  .pop a:hover{ text-decoration:underline; }
+
+  /* ---------- Add-crag modal ---------- */
+  .toast{
+    position:absolute; top:calc(var(--header-h) + 14px); left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--chalk); padding:10px 16px; border-radius:999px;
+    font-size:13px; z-index:1200; box-shadow:var(--shadow);
+    display:none; align-items:center; gap:10px;
+  }
+  .toast.show{ display:flex; }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(22,33,30,.42);
+    display:none; align-items:center; justify-content:center; z-index:1500; padding:20px;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:var(--chalk); border-radius:18px; width:min(520px,100%);
+    max-height:90vh; overflow-y:auto; box-shadow:var(--shadow);
+  }
+  .modal-head{ padding:20px 22px 6px; }
+  .modal-head h2{ font-family:"Fraunces",serif; font-weight:900; font-size:22px; margin:0; }
+  .modal-head p{ font-size:13px; color:var(--pine-2); margin:6px 0 0; }
+  .modal form{ padding:14px 22px 4px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field{ display:flex; flex-direction:column; gap:5px; }
+  .field.full{ grid-column:1 / -1; }
+  .field label{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sage); }
+  .field input, .field textarea{
+    font-family:"Archivo",sans-serif; font-size:14px; padding:9px 11px;
+    border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink);
+  }
+  .field .mono input, .field input.mono{ font-family:"Space Mono",monospace; }
+  .field input:focus, .field textarea:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .field textarea{ resize:vertical; min-height:60px; }
+
+  .snippet{ padding:6px 22px 0; }
+  .snippet label{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sage); }
+  .snippet pre{
+    font-family:"Space Mono",monospace; font-size:12px; line-height:1.5;
+    background:var(--ink); color:#DDE7E1; border-radius:10px;
+    padding:12px 14px; margin:6px 0 0; overflow-x:auto; white-space:pre;
+  }
+  .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:820px){
+    :root{ --header-h:auto; }
+    header{ flex-wrap:wrap; padding:12px 16px; gap:12px; }
+    .stats{ order:3; width:100%; margin-left:0; }
+    .btn-add{ margin-left:auto; }
+    .stage{ flex-direction:column; height:calc(100% - 150px); }
+    aside{ width:100%; flex:0 0 auto; max-height:38vh; border-right:none; border-bottom:1px solid var(--line); }
+    #map{ min-height:300px; }
+    .modal form{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="contours" viewBox="0 0 1200 76" preserveAspectRatio="none" aria-hidden="true">
+    <g fill="none" stroke="#F6F3EB" stroke-width="1.2">
+      <path d="M0 60 Q150 30 320 46 T650 40 T980 52 T1200 38"/>
+      <path d="M0 44 Q160 18 340 30 T680 24 T1000 36 T1200 22"/>
+      <path d="M0 28 Q170 6 360 16 T700 10 T1020 20 T1200 8"/>
+    </g>
+  </svg>
+
+  <div class="brand">
+    <h1>Crag Log</h1>
+    <span class="tag mono">Field survey · rock touched</span>
+  </div>
+
+  <div class="stats">
+    <div class="chip"><b id="stat-crags">0</b><span>Crags</span></div>
+    <div class="chip"><b id="stat-countries">0</b><span>Countries</span></div>
+    <div class="chip"><b id="stat-routes">0</b><span>Routes</span></div>
+  </div>
+
+  <button class="btn btn-add" id="addBtn">+ Add a crag</button>
+</header>
+
+<div class="stage">
+  <aside>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search crags, areas, countries…" aria-label="Search crags" />
+    </div>
+    <div class="list-head"><span>Logbook</span><span id="list-count" class="mono">0</span></div>
+    <div class="list" id="list"></div>
+  </aside>
+  <div id="map"></div>
+</div>
+
+<div class="toast" id="toast">📍 Click the map where the crag is — <b>Esc</b> to cancel</div>
+
+<!-- Add-crag modal -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Log a crag</h2>
+      <p>Fill this in, then copy the snippet into the <span class="mono">CRAGS</span> list near the top of <span class="mono">index.html</span> and commit. That keeps your repo the source of truth.</p>
+    </div>
+    <form id="cragForm">
+      <div class="field full"><label>Name</label><input name="name" required placeholder="Massone" /></div>
+      <div class="field"><label>Area</label><input name="area" placeholder="Arco, Trentino" /></div>
+      <div class="field"><label>Country</label><input name="country" placeholder="Italy" /></div>
+      <div class="field"><label>Latitude</label><input name="lat" class="mono" required placeholder="45.9180" /></div>
+      <div class="field"><label>Longitude</label><input name="lng" class="mono" required placeholder="10.8840" /></div>
+      <div class="field"><label>Grade range</label><input name="grade" class="mono" placeholder="5a–7b" /></div>
+      <div class="field"><label>Rock</label><input name="rock" placeholder="Limestone" /></div>
+      <div class="field"><label>Visited</label><input name="visited" placeholder="2024" /></div>
+      <div class="field"><label>Routes done</label><input name="routes" class="mono" placeholder="12" /></div>
+      <div class="field full"><label>Notes</label><textarea name="notes" placeholder="Steep and polished, but the sunset from the top…"></textarea></div>
+      <div class="field full"><label>Link (optional)</label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
+    </form>
+    <div class="snippet">
+      <label>Snippet for your CRAGS list</label>
+      <pre id="snippet">Fill the form to generate…</pre>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="copyBtn" type="button">Copy snippet</button>
+      <button class="btn btn-ghost" id="cancelBtn" type="button">Close</button>
+      <button class="btn btn-add" id="dropBtn" type="button">Drop on map</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   YOUR CRAGS — edit this list. Each entry is one place you've climbed.
+   Only name + lat + lng are required; the rest are optional flavour.
+   ===================================================================== */
+const CRAGS = [
+  { name:"Massone",        area:"Arco, Trentino",   country:"Italy",   lat:45.9180, lng:10.8840, grade:"4c–8a",  rock:"Limestone", visited:"2023", routes:18, notes:"The classic Arco warm-up. Gets sun early, polished but endless." },
+  { name:"Finale Ligure",  area:"Liguria",          country:"Italy",   lat:44.1700, lng:8.3430,  grade:"4a–8b",  rock:"Limestone", visited:"2022", routes:24, notes:"Sea + rock. Pockety and technical, huge amount of easy-to-mid stuff." },
+  { name:"Sperlonga",      area:"Lazio",            country:"Italy",   lat:41.2640, lng:13.4350, grade:"5b–8a",  rock:"Limestone", visited:"2024", routes:9,  notes:"Winter sun on the coast. Tufa heaven when it's dry." },
+  { name:"San Vito Lo Capo",area:"Sicily",          country:"Italy",   lat:38.1740, lng:12.7350, grade:"4c–7c",  rock:"Limestone", visited:"2023", routes:14, notes:"Grey walls above turquoise water. Go in shoulder season." },
+  { name:"Val di Mello",   area:"Lombardy",         country:"Italy",   lat:46.2570, lng:9.6780,  grade:"5a–7a",  rock:"Granite",   visited:"2021", routes:6,  notes:"Slabby granite in a valley that looks fake it's so green." },
+  { name:"Cornalba",       area:"Bergamo, Lombardy",country:"Italy",   lat:45.8500, lng:9.7170,  grade:"6a–8c",  rock:"Limestone", visited:"2022", routes:11, notes:"Steep, hard, and proud. Not a beginner's day out." },
+  { name:"Kalymnos",       area:"Dodecanese",       country:"Greece",  lat:36.9960, lng:26.9650, grade:"4a–8c",  rock:"Limestone", visited:"2023", routes:31, notes:"The pilgrimage. Tufas, stalactites, and cheap gyros." },
+  { name:"Siurana",        area:"Catalonia",        country:"Spain",   lat:41.2560, lng:0.9300,  grade:"5a–9a",  rock:"Limestone", visited:"2024", routes:16, notes:"Vertical and crimpy. Humbling grades, gorgeous village." },
+  { name:"Railay",         area:"Krabi",            country:"Thailand",lat:8.0050,  lng:98.8380, grade:"5+–8a",  rock:"Limestone", visited:"2019", routes:8,  notes:"Climb, swim, repeat. Sweaty but unreal setting." }
+];
+
+/* ---------- Map setup ---------- */
+const map = L.map('map', { zoomControl:true }).setView([42.5, 12.5], 5); // starts on Italy
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  maxZoom:19
+}).addTo(map);
+
+function pinIcon(temp){
+  const html = `<div class="pin${temp?' temp':''}">
+    <svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 25 15 25s15-14.5 15-25C30 6.7 23.3 0 15 0z" fill="#C1372F"/>
+      <circle cx="15" cy="15" r="6" fill="#F6F3EB"/>
+    </svg></div>`;
+  return L.divIcon({ html, className:'', iconSize:[30,40], iconAnchor:[15,40], popupAnchor:[0,-38] });
+}
+
+function popupHTML(c){
+  const rows = [
+    ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
+    c.grade   && ['grade', c.grade],
+    c.rock    && ['rock', c.rock],
+    c.visited && ['visited', c.visited],
+    (c.routes || c.routes===0) && ['routes', c.routes]
+  ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join('');
+  return `<div class="pop">
+    <h3>${esc(c.name)}</h3>
+    ${(c.area||c.country) ? `<div class="place">${esc([c.area,c.country].filter(Boolean).join(' · '))}</div>` : ''}
+    ${rows}
+    ${c.notes ? `<div class="notes">${esc(c.notes)}</div>` : ''}
+    ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
+  </div>`;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+let markers = [];
+function render(filter=""){
+  markers.forEach(m => map.removeLayer(m.marker));
+  markers = [];
+  const listEl = document.getElementById('list');
+  listEl.innerHTML = "";
+  const f = filter.trim().toLowerCase();
+
+  const shown = CRAGS.filter(c =>
+    !f || [c.name,c.area,c.country,c.rock].some(v => v && v.toLowerCase().includes(f)));
+
+  shown.forEach((c) => {
+    const marker = L.marker([c.lat, c.lng], { icon:pinIcon() }).addTo(map).bindPopup(popupHTML(c));
+    markers.push({ marker, crag:c });
+
+    const card = document.createElement('div');
+    card.className = 'card'; card.tabIndex = 0;
+    card.innerHTML = `<h3>${esc(c.name)}</h3>
+      ${(c.area||c.country)?`<div class="place">${esc([c.area,c.country].filter(Boolean).join(' · '))}</div>`:''}
+      <div class="meta">
+        ${c.grade?`<span class="tagpill grade">${esc(c.grade)}</span>`:''}
+        ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
+        ${c.visited?`<span class="tagpill">${esc(c.visited)}</span>`:''}
+      </div>`;
+    const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
+    card.addEventListener('click', go);
+    card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
+    listEl.appendChild(card);
+  });
+
+  document.getElementById('list-count').textContent = shown.length;
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById('stat-crags').textContent = CRAGS.length;
+  document.getElementById('stat-countries').textContent =
+    new Set(CRAGS.map(c => c.country).filter(Boolean)).size;
+  document.getElementById('stat-routes').textContent =
+    CRAGS.reduce((n,c) => n + (Number(c.routes)||0), 0);
+}
+
+document.getElementById('search').addEventListener('input', e => render(e.target.value));
+
+/* ---------- Add-crag flow ---------- */
+const addBtn = document.getElementById('addBtn');
+const toast  = document.getElementById('toast');
+const overlay= document.getElementById('overlay');
+const form   = document.getElementById('cragForm');
+let armed = false, tempMarker = null;
+
+function arm(on){
+  armed = on;
+  addBtn.classList.toggle('armed', on);
+  addBtn.textContent = on ? '✕ Cancel' : '+ Add a crag';
+  toast.classList.toggle('show', on);
+  map.getContainer().style.cursor = on ? 'crosshair' : '';
+}
+addBtn.addEventListener('click', () => arm(!armed));
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ arm(false); closeModal(); }});
+
+map.on('click', e => {
+  if(!armed) return;
+  arm(false);
+  form.reset();
+  form.lat.value = e.latlng.lat.toFixed(4);
+  form.lng.value = e.latlng.lng.toFixed(4);
+  if(tempMarker) map.removeLayer(tempMarker);
+  tempMarker = L.marker(e.latlng, { icon:pinIcon(true) }).addTo(map);
+  buildSnippet();
+  overlay.classList.add('show');
+  form.name.focus();
+});
+
+function readForm(){
+  const g = n => form[n].value.trim();
+  const o = { name:g('name'), area:g('area'), country:g('country'),
+              lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
+              grade:g('grade'), rock:g('rock'), visited:g('visited'),
+              routes:g('routes')?Number(g('routes')):undefined, notes:g('notes'), link:g('link') };
+  Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
+  return o;
+}
+function buildSnippet(){
+  const o = readForm();
+  const parts = Object.entries(o).map(([k,v]) =>
+    `${k}:${typeof v==='number'?` ${v}`:` ${JSON.stringify(v)}`}`);
+  document.getElementById('snippet').textContent = `{ ${parts.join(', ')} },`;
+}
+form.addEventListener('input', buildSnippet);
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const txt = document.getElementById('snippet').textContent;
+  navigator.clipboard?.writeText(txt);
+  const b = document.getElementById('copyBtn');
+  b.textContent = 'Copied ✓'; setTimeout(()=> b.textContent='Copy snippet', 1400);
+});
+
+document.getElementById('dropBtn').addEventListener('click', () => {
+  const o = readForm();
+  if(!o.name || isNaN(o.lat) || isNaN(o.lng)){ alert('Need at least a name and coordinates.'); return; }
+  CRAGS.push(o);
+  if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+  render(document.getElementById('search').value);
+  closeModal();
+});
+
+function closeModal(){
+  overlay.classList.remove('show');
+  if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
+}
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if(e.target===overlay) closeModal(); });
+
+/* ---------- Go ---------- */
+render();
+</script>
+</body>
+</html>

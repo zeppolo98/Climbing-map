@@ -145,6 +145,13 @@
              display:flex; justify-content:space-between; gap:14px; padding:3px 0;
              border-top:1px dashed var(--line); }
   .pop .row span:first-child{ color:var(--sage); }
+  .pop .visits{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .pop .visit{ border-top:1px dashed var(--line); padding-top:8px; }
+  .pop .visit-meta{
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--sage); margin-bottom:4px;
+  }
+  .pop .visit ul{ margin:0; padding-left:16px; font-size:13px; line-height:1.5; color:var(--ink); }
   .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
           display:inline-block; margin-top:10px; }
   .pop a:hover{ text-decoration:underline; }
@@ -216,6 +223,39 @@
     padding:12px 14px; margin:6px 0 0; overflow-x:auto; white-space:pre;
   }
   .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ---------- Visits ---------- */
+  #visitsList{ display:flex; flex-direction:column; gap:10px; }
+  .visit-block{
+    border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+    background:#fff; display:flex; flex-direction:column; gap:8px;
+  }
+  .visit-head{ display:flex; justify-content:space-between; align-items:center; }
+  .visit-head .visit-num{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--sage); font-weight:600; }
+  .visit-head button, .route-row button{
+    background:none; border:none; font-size:16px; line-height:1;
+    cursor:pointer; color:var(--sage); padding:0 2px;
+  }
+  .visit-head button:hover, .route-row button:hover{ color:var(--marker); }
+  .visit-row{ display:flex; gap:8px; }
+  .routes-list{ display:flex; flex-direction:column; gap:6px; }
+  .route-row{ display:flex; gap:6px; align-items:center; }
+  .route-row .route-name{ flex:1.2; }
+  .route-row .route-comment{ flex:1.6; }
+  .visit-block input{
+    font-family:"Archivo",sans-serif; font-size:13px; padding:7px 9px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
+    min-width:0;
+  }
+  .visit-block input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .visit-block input[type="date"]{ flex:0 0 140px; }
+  .route-row .route-grade{ font-family:"Space Mono",monospace; flex:0 0 70px; }
+  .btn-add-route{
+    align-self:flex-start; font-size:12px; padding:5px 10px; border-radius:7px;
+    border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
+  }
+  .btn-add-route:hover{ background:var(--limestone); }
+  .btn-add-visit{ align-self:flex-start; }
 
   /* ---------- Responsive ---------- */
   @media (max-width:820px){
@@ -306,6 +346,11 @@
       </div>
       <div class="field full"><label>Rock <span style="opacity:.6">(optional)</span></label><input name="rock" placeholder="Limestone" /></div>
       <div class="field full"><label>Link <span style="opacity:.6">(optional)</span></label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
+      <div class="field full">
+        <label>Visits <span style="opacity:.6">(optional)</span></label>
+        <div id="visitsList"></div>
+        <button type="button" class="btn btn-ghost btn-add-visit" id="addVisitBtn">+ Add a visit</button>
+      </div>
     </form>
     <div class="snippet">
       <label>Snippet for crags.js</label>
@@ -340,6 +385,20 @@ function pinIcon(temp){
 
 function typeLabel(t){ return t==='multipitch' ? 'Multipitch' : 'Crag'; }
 
+function visitsHTML(visits){
+  if(!visits || !visits.length) return '';
+  const items = visits.map(v => {
+    const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
+    const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
+    const routes = (v.routes||[]).map(r => {
+      const bits = [r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
+      return `<li>${bits.join(' — ')}</li>`;
+    }).join('');
+    return `<div class="visit">${meta}${routes ? `<ul>${routes}</ul>` : ''}</div>`;
+  }).join('');
+  return `<div class="visits">${items}</div>`;
+}
+
 function popupHTML(c){
   const hasParking = c.parkingLat!==undefined && c.parkingLng!==undefined;
   const rows = [
@@ -351,6 +410,7 @@ function popupHTML(c){
   return `<div class="pop">
     <h3>${esc(c.name)}</h3>
     ${rows}
+    ${visitsHTML(c.visits)}
     ${c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">Open guide ↗</a>` : ''}
   </div>`;
 }
@@ -377,6 +437,7 @@ function render(filter=""){
       <div class="meta">
         <span class="tagpill">${esc(typeLabel(c.type))}</span>
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
+        ${c.visits&&c.visits.length?`<span class="tagpill">${c.visits.length} visit${c.visits.length>1?'s':''}</span>`:''}
       </div>`;
     const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
     card.addEventListener('click', go);
@@ -417,6 +478,7 @@ map.on('click', e => {
   if(!armed) return;
   arm(false);
   form.reset();
+  resetVisits();
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
   syncTempMarker();
@@ -462,6 +524,7 @@ pickerNextBtn.addEventListener('click', () => {
   if(!pickerCoord) return;
   coordPicker.classList.remove('show');
   form.reset();
+  resetVisits();
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
   buildSnippet();
@@ -523,14 +586,98 @@ function parseCoordinates(str){
   return null;
 }
 
+/* ---------- Visits ---------- */
+const visitsList = document.getElementById('visitsList');
+
+function makeRouteRow(){
+  const row = document.createElement('div');
+  row.className = 'route-row';
+  row.innerHTML = `
+    <input type="text" class="route-name" placeholder="Route name" />
+    <input type="text" class="route-grade mono" placeholder="Grade" />
+    <input type="text" class="route-comment" placeholder="Comment" />
+    <button type="button" aria-label="Remove route">×</button>`;
+  row.querySelector('button').addEventListener('click', () => { row.remove(); buildSnippet(); });
+  return row;
+}
+
+function makeVisitBlock(){
+  const block = document.createElement('div');
+  block.className = 'visit-block';
+  block.innerHTML = `
+    <div class="visit-head">
+      <span class="visit-num"></span>
+      <button type="button" aria-label="Remove visit">×</button>
+    </div>
+    <div class="visit-row">
+      <input type="date" class="visit-date" />
+      <input type="text" class="visit-with" placeholder="With: Marco, Giulia" />
+    </div>
+    <div class="routes-list"></div>
+    <button type="button" class="btn-add-route">+ Add route</button>`;
+  block.querySelector('.routes-list').appendChild(makeRouteRow());
+  block.querySelector('.btn-add-route').addEventListener('click', () => {
+    block.querySelector('.routes-list').appendChild(makeRouteRow());
+  });
+  block.querySelector('.visit-head button').addEventListener('click', () => {
+    block.remove();
+    renumberVisits();
+    buildSnippet();
+  });
+  return block;
+}
+
+function renumberVisits(){
+  [...visitsList.querySelectorAll('.visit-block')].forEach((b, i) => {
+    b.querySelector('.visit-num').textContent = `Visit ${i+1}`;
+  });
+}
+
+function resetVisits(){
+  visitsList.innerHTML = '';
+  visitsList.appendChild(makeVisitBlock());
+  renumberVisits();
+}
+
+document.getElementById('addVisitBtn').addEventListener('click', () => {
+  visitsList.appendChild(makeVisitBlock());
+  renumberVisits();
+  buildSnippet();
+});
+
+function collectVisits(){
+  return [...visitsList.querySelectorAll('.visit-block')].map(block => {
+    const date = block.querySelector('.visit-date').value.trim();
+    const withPeople = block.querySelector('.visit-with').value.trim();
+    const routes = [...block.querySelectorAll('.route-row')].map(row => {
+      const name = row.querySelector('.route-name').value.trim();
+      const grade = row.querySelector('.route-grade').value.trim();
+      const comment = row.querySelector('.route-comment').value.trim();
+      const r = {};
+      if(name) r.name = name;
+      if(grade) r.grade = grade;
+      if(comment) r.comment = comment;
+      return r;
+    }).filter(r => Object.keys(r).length > 0);
+
+    const visit = {};
+    if(date) visit.date = date;
+    if(withPeople) visit.with = withPeople;
+    if(routes.length) visit.routes = routes;
+    return visit;
+  }).filter(v => Object.keys(v).length > 0);
+}
+
 function readForm(){
   const g = n => form[n].value.trim();
   const parking = parseCoordinates(g('parkingCoords'));
+  const visits = collectVisits();
   const o = { type:g('type'), name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
               parkingLng: parking ? parking.lng : undefined,
-              rock:g('rock'), link:g('link') };
+              rock:g('rock'), link:g('link'),
+              visits: visits.length ? visits : undefined };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;
 }
@@ -569,6 +716,7 @@ document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', e => { if(e.target===overlay) closeModal(); });
 
 /* ---------- Go ---------- */
+resetVisits();
 render();
 </script>
 </body>

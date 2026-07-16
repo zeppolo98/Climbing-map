@@ -147,6 +147,7 @@
              display:flex; justify-content:space-between; gap:14px; padding:3px 0;
              border-top:1px dashed var(--line); }
   .pop .row span:first-child{ color:var(--sage); }
+  .pop .description{ margin-top:10px; font-size:13px; line-height:1.45; color:var(--pine-2); }
   .pop a{ color:var(--marker); font-weight:600; font-size:13px; text-decoration:none;
           display:inline-block; margin-top:10px; }
   .pop a:hover{ text-decoration:underline; }
@@ -377,6 +378,8 @@
         <input name="parkingCoords" class="mono" placeholder="46.076245, 9.435389  or  46°04'34.5&quot;N 9°26'07.4&quot;E" />
       </div>
       <div class="field full"><label>Rock <span style="opacity:.6">(optional)</span></label><input name="rock" placeholder="Limestone" /></div>
+      <div class="field full"><label>Exposition <span style="opacity:.6">(optional)</span></label><input name="exposition" placeholder="South-facing, sun until 2pm" /></div>
+      <div class="field full"><label>Description <span style="opacity:.6">(optional)</span></label><textarea name="description" placeholder="Approach, style, when to go…"></textarea></div>
       <div class="field full"><label>Link <span style="opacity:.6">(optional)</span></label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
       <div class="field full">
         <label>Visits <span style="opacity:.6">(optional)</span></label>
@@ -459,11 +462,13 @@ function popupHTML(c){
     ['type', typeLabel(c.type)],
     ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
     c.rock && ['rock', c.rock],
+    c.exposition && ['exposition', c.exposition],
     hasParking && ['parking', `${(+c.parkingLat).toFixed(4)}, ${(+c.parkingLng).toFixed(4)}`]
   ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join('');
   return `<div class="pop">
     <h3>${esc(c.name)}</h3>
     ${rows}
+    ${c.description ? `<div class="description">${esc(c.description)}</div>` : ''}
     <div class="pop-actions">
       ${hasVisits ? `<button type="button" class="btn-view-visits-popup">View visits (${c.visits.length})</button>` : ''}
       <button type="button" class="btn-add-visit-popup">+ Add visit</button>
@@ -514,6 +519,7 @@ function render(filter=""){
       <div class="meta">
         <span class="tagpill">${esc(typeLabel(c.type))}</span>
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
+        ${c.exposition?`<span class="tagpill">${esc(c.exposition)}</span>`:''}
         ${c.visits&&c.visits.length?`<span class="tagpill">${c.visits.length} visit${c.visits.length>1?'s':''}</span>`:''}
       </div>
       <div class="card-actions">
@@ -592,6 +598,8 @@ function openEditModal(crag){
   form.parkingCoords.value = (crag.parkingLat!==undefined && crag.parkingLng!==undefined)
     ? `${crag.parkingLat}, ${crag.parkingLng}` : '';
   form.rock.value = crag.rock || '';
+  form.exposition.value = crag.exposition || '';
+  form.description.value = crag.description || '';
   form.link.value = crag.link || '';
   fillVisitsList(visitsList, crag.visits, noop);
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
@@ -837,7 +845,7 @@ function readForm(){
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
               parkingLng: parking ? parking.lng : undefined,
-              rock:g('rock'), link:g('link'),
+              rock:g('rock'), exposition:g('exposition'), description:g('description'), link:g('link'),
               visits: visits.length ? visits : undefined };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;

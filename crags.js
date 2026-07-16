@@ -9,6 +9,8 @@ const CRAGS = [
     "lat": 45.908774,
     "lng": 9.434212,
     "rock": "Limestone",
+    "exposition": "North, in the shadow all day and super fresh even in summer",
+    "description": "3 settori: \n- Scala dei Sogni, tiri di quinto, ben appigliati. 4 sesti molto belli e sempre da tirare\n- Muretto del Gio: 4 tiri di sesto, placca a tacche e qualche strapiombo\n- Muro del Butch: Tiri lunghi e duri con stili che variano, più placca",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/ilmurodelbutch/index.html",
     "visits": [
       {
@@ -47,6 +49,8 @@ const CRAGS = [
     "parkingLat": 45.828727,
     "parkingLng": 9.335894,
     "rock": "Limestone",
+    "exposition": "South, but mostly in the shadow",
+    "description": "Molti settori, quelli coi gradi più bassi sono molto unti. Ottima per il dopo lavoro e avvicinamento breve. Settore Valle degli Orti il migliore con anche gradi più alti fino 6c",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/civate/index.html",
     "visits": [
       {
@@ -75,6 +79,8 @@ const CRAGS = [
     "parkingLat": 46.23945,
     "parkingLng": 9.627467,
     "rock": "Granite",
+    "exposition": "Depends",
+    "description": "Blocchi ovunque, ho una guida intera coi settori. La roccia ti mangia la pelle. Bellissima valle anche per passeggiate/vie/falesie",
     "link": "https://www.thecrag.com/it/arrampicata/italy/val-di-mello/area/1279720257",
     "visits": [
       {
@@ -108,6 +114,8 @@ const CRAGS = [
     "parkingLat": 46.189872,
     "parkingLng": 8.756805,
     "rock": "Granite",
+    "exposition": "Ovest, sun after 11a.m.",
+    "description": "Tutta placca, molto sporca occhio",
     "link": "https://www.sassbaloss.com/pagine/uscite/harlem/harlem.htm",
     "visits": [
       {
@@ -131,6 +139,8 @@ const CRAGS = [
     "parkingLat": 46.285113,
     "parkingLng": 8.287014,
     "rock": "Granite",
+    "exposition": "North, in the shadow all day",
+    "description": "Bella roccia, più di 70 tiri, anche se affollata c'è roba da fare, si sta al fresco anche d'estate",
     "link": "https://www.gulliver.it/itinerari/esigo-ponte-romano-falesia/",
     "visits": [
       {

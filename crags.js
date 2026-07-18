@@ -38,6 +38,22 @@ const CRAGS = [
             "comment": "alla scala dei sogni, tecnico molto bello"
           }
         ]
+      },
+      {
+        "date": "2026-06-20",
+        "with": "Nico",
+        "routes": [
+          {
+            "name": "Su alto",
+            "grade": "6c",
+            "comment": "non chiuso ma fattibile"
+          },
+          {
+            "name": "Fratelli d'arte",
+            "grade": "6b+",
+            "comment": "al muretto, non chiuso, intro dura poi di resistenza"
+          }
+        ]
       }
     ]
   },
@@ -151,6 +167,56 @@ const CRAGS = [
             "name": "Deverino Valley",
             "grade": "5c",
             "comment": "Carina, passaggio non banale sotto poi placca di equilibrio"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "multipitch",
+    "name": "Zucco dell'Angelone",
+    "lat": 45.958137,
+    "lng": 9.459862,
+    "parkingLat": 45.954905,
+    "parkingLng": 9.465767,
+    "rock": "Limestone",
+    "exposition": "Sud",
+    "description": "Sentieri e avvicinamento segnalati molto male. Attacchi delle vie anche peggio. Pienissimo di vie chiodate a caso che si incrociano, leggere più relazioni attentamente.",
+    "link": "https://www.gulliver.it/itinerari/zucco-dellangelone/",
+    "visits": [
+      {
+        "date": "2026-06-13",
+        "with": "Japo, Andre, SaraG, Fede",
+        "routes": [
+          {
+            "name": "Ortofrsco + Schiavi della pietra",
+            "grade": "5b",
+            "comment": "Facili, ma molto carine. Prime due soste di ortofresco mancanti"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Falesia del cannone",
+    "lat": 45.981249,
+    "lng": 8.39887,
+    "parkingLat": 45.984583,
+    "parkingLng": 8.400296,
+    "rock": "Limestone",
+    "exposition": "Nord",
+    "description": "Falesia in ombra dalle 11, roccia nera che scotta al sole. gradi fino al 6b, vecchia palestra CAI.",
+    "link": "https://www.gulliver.it/itinerari/cannone-giova-1/",
+    "visits": [
+      {
+        "date": "2026-07-21",
+        "with": "Japo, Andre, SaraG, Ire",
+        "routes": [
+          {
+            "name": "Il ragno",
+            "grade": "6b",
+            "comment": "uscita dallo strapiombo dura"
           }
         ]
       }

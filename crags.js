@@ -54,6 +54,21 @@ const CRAGS = [
             "comment": "al muretto, non chiuso, intro dura poi di resistenza"
           }
         ]
+      },
+      {
+        "date": "2026-05-23",
+        "with": "Chiara, Fra, Luca, Andre",
+        "routes": [
+          {
+            "grade": "6b"
+          },
+          {
+            "grade": "6a+"
+          },
+          {
+            "grade": "6a+"
+          }
+        ]
       }
     ]
   },
@@ -82,6 +97,16 @@ const CRAGS = [
             "name": "Via Nomentana",
             "grade": "6b",
             "comment": "Bello, lungo, duro sotto. Allungo al limite"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-20",
+        "with": "Luca, Fra, Chiara",
+        "routes": [
+          {
+            "grade": "6a",
+            "comment": "Completato il settore Amazzonia e Palestra vecchia"
           }
         ]
       }
@@ -217,6 +242,83 @@ const CRAGS = [
             "name": "Il ragno",
             "grade": "6b",
             "comment": "uscita dallo strapiombo dura"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Falesia calusco d'adda",
+    "lat": 45.682229,
+    "lng": 9.455296,
+    "parkingLat": 45.684741,
+    "parkingLng": 9.458401,
+    "rock": "Conglomerato",
+    "exposition": "Tutto",
+    "description": "Roccia particolare, di difficile lettura le prime volte, ma molto bella. diversi settori con tutti i gradi di difficoltà. Ottima anche d'estate, occhio alle zanzare",
+    "link": "https://www.falesia.it/crag/116/calusco-paderno.html",
+    "visits": [
+      {
+        "date": "2026-06-06",
+        "with": "Luca, Fra, Japo, SaraG",
+        "routes": [
+          {
+            "name": "Mal di dita",
+            "grade": "5c"
+          },
+          {
+            "name": "Spirito solitario",
+            "grade": "6a+",
+            "comment": "continuo"
+          },
+          {
+            "name": "Money Penny",
+            "grade": "6a+",
+            "comment": "Incomprensibile"
+          },
+          {
+            "name": "Grazie Cinzia diretto",
+            "grade": "6b",
+            "comment": "carino di dita"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Ailefroide",
+    "lat": 44.885185,
+    "lng": 6.450342,
+    "parkingLat": 44.885185,
+    "parkingLng": 6.450342,
+    "rock": "Granite",
+    "exposition": "Everywhere",
+    "description": "Bellissimo posto pieni di vie/falesie/blocchi. il campeggio è molto comodo e costa poco",
+    "visits": [
+      {
+        "date": "2026-06-01",
+        "with": "Ire, SaraG",
+        "routes": [
+          {
+            "name": "Ecrins total",
+            "grade": "5c",
+            "comment": "Via di 5 tiri, traverso duro al terzo tiro"
+          }
+        ]
+      },
+      {
+        "date": "2026-06-02",
+        "with": "Fra, Luca, Ire, SaraG, Andre, Isa",
+        "routes": [
+          {
+            "grade": "5c",
+            "comment": "lungo e tecnico"
+          },
+          {
+            "grade": "6c",
+            "comment": "top rope, passo di placca con nulla"
           }
         ]
       }

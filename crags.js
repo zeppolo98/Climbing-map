@@ -323,5 +323,46 @@ const CRAGS = [
         ]
       }
     ]
+  },
+  {
+    "type": "crag",
+    "name": "Falesia di Valgua",
+    "lat": 45.780462,
+    "lng": 9.778912,
+    "parkingLat": 45.776395,
+    "parkingLng": 9.781794,
+    "rock": "Limestone",
+    "exposition": "North",
+    "description": "Ci sono vari settori, su theCrag sono segnati più tiri di quelli che effettivamente abbiamo trovato. Bella falesia estiva, gradi non banali, dal 5c in su",
+    "link": "https://www.thecrag.com/it/arrampicata/italy/valgua",
+    "visits": [
+      {
+        "date": "2026-07-25",
+        "with": "Ire, Nico, Andre, Isa",
+        "routes": [
+          {
+            "name": "Prendi il fossile",
+            "grade": "6a"
+          },
+          {
+            "name": "Rovescio d'occasione",
+            "grade": "6a+"
+          },
+          {
+            "name": "Una gita con Roby",
+            "grade": "6a+"
+          },
+          {
+            "name": "Boletus Edulis",
+            "grade": "7a",
+            "comment": "fatto di scaldo e sucato male neanche finito, da riprovare"
+          },
+          {
+            "name": "Donald Duck",
+            "grade": "5c"
+          }
+        ]
+      }
+    ]
   }
 ];

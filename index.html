@@ -109,6 +109,14 @@
     background:var(--chalk); color:var(--ink);
   }
   .search input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .list-mode-tabs{ display:flex; gap:6px; padding:0 16px 10px; }
+  .list-mode-tab{
+    font-family:"Archivo",sans-serif; font-weight:600; font-size:12.5px;
+    padding:7px 12px; border-radius:999px; border:1px solid var(--line);
+    background:var(--chalk); color:var(--pine-2); cursor:pointer; flex:1;
+  }
+  .list-mode-tab.active{ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
+  .list-mode-tab:hover:not(.active){ background:var(--limestone); }
   .list-head{
     padding:0 18px 8px; font-size:10.5px; letter-spacing:.16em;
     text-transform:uppercase; color:var(--sage);
@@ -130,6 +138,7 @@
     padding:3px 8px; border-radius:999px; background:var(--limestone);
     border:1px solid var(--line);
   }
+  .visit-card-summary{ margin-top:6px; font-size:12.5px; line-height:1.4; color:var(--pine-2); }
 
   /* ---------- Map ---------- */
   #map{ flex:1; background:#eee; }
@@ -348,7 +357,11 @@
     <div class="search">
       <input id="search" type="search" placeholder="Search by name or rock type…" aria-label="Search places" />
     </div>
-    <div class="list-head"><span>Logbook</span><span id="list-count" class="mono">0</span></div>
+    <div class="list-mode-tabs" id="listModeTabs">
+      <button type="button" class="list-mode-tab active" data-mode="places">Places</button>
+      <button type="button" class="list-mode-tab" data-mode="visits">Visits</button>
+    </div>
+    <div class="list-head"><span id="list-head-label">Logbook</span><span id="list-count" class="mono">0</span></div>
     <div class="list" id="list"></div>
   </aside>
   <div id="map"></div>
@@ -526,20 +539,34 @@ function downloadCragsFile(){
 document.getElementById('downloadBtn').addEventListener('click', downloadCragsFile);
 
 let markers = [];
+let listMode = 'places';
+
 function render(filter=""){
   markers.forEach(m => map.removeLayer(m.marker));
   markers = [];
-  const listEl = document.getElementById('list');
-  listEl.innerHTML = "";
   const f = filter.trim().toLowerCase();
 
-  const shown = CRAGS.filter(c =>
-    !f || [c.name, c.rock, expositionLabel(c.exposition)].some(v => v && v.toLowerCase().includes(f)));
+  const pinCrags = (listMode === 'visits')
+    ? CRAGS
+    : CRAGS.filter(c => !f || [c.name, c.rock, expositionLabel(c.exposition)].some(v => v && v.toLowerCase().includes(f)));
 
-  shown.forEach((c) => {
+  pinCrags.forEach(c => {
     const marker = L.marker([c.lat, c.lng], { icon:pinIcon() }).addTo(map).bindPopup(popupHTML(c));
     markers.push({ marker, crag:c });
+  });
 
+  if(listMode === 'visits') renderVisitsList(f);
+  else renderPlacesList(pinCrags);
+
+  updateStats();
+}
+
+function renderPlacesList(shown){
+  const listEl = document.getElementById('list');
+  listEl.innerHTML = "";
+
+  shown.forEach((c) => {
+    const marker = markers.find(m => m.crag === c).marker;
     const card = document.createElement('div');
     card.className = 'card'; card.tabIndex = 0;
     card.innerHTML = `<h3>${esc(c.name)}</h3>
@@ -564,8 +591,61 @@ function render(filter=""){
   });
 
   document.getElementById('list-count').textContent = shown.length;
-  updateStats();
 }
+
+function renderVisitsList(f){
+  const listEl = document.getElementById('list');
+  listEl.innerHTML = "";
+
+  const allVisits = [];
+  CRAGS.forEach(c => (c.visits||[]).forEach((v, i) => allVisits.push({ crag:c, visit:v, index:i })));
+  allVisits.sort((a,b) => (b.visit.date||'').localeCompare(a.visit.date||''));
+
+  const shown = allVisits.filter(({crag:c, visit:v}) => {
+    if(!f) return true;
+    const routeText = (v.routes||[]).map(r => [r.name,r.grade,r.comment].filter(Boolean).join(' ')).join(' ');
+    const haystack = [c.name, v.with, v.summary, routeText].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(f);
+  });
+
+  shown.forEach(({crag:c, visit:v, index}) => {
+    const routeGrades = (v.routes||[]).map(r => r.grade).filter(Boolean);
+    const card = document.createElement('div');
+    card.className = 'card'; card.tabIndex = 0;
+    card.innerHTML = `<h3>${esc(c.name)}</h3>
+      <div class="meta">
+        ${v.date?`<span class="tagpill mono">${esc(v.date)}</span>`:''}
+        ${v.with?`<span class="tagpill">with ${esc(v.with)}</span>`:''}
+        ${routeGrades.length?`<span class="tagpill">${routeGrades.length} route${routeGrades.length>1?'s':''}</span>`:''}
+      </div>
+      ${v.summary?`<div class="visit-card-summary">${esc(v.summary)}</div>`:''}`;
+    const go = () => {
+      map.flyTo([c.lat,c.lng], 12, {duration:.8});
+      const entry = markers.find(m => m.crag === c);
+      entry?.marker.openPopup();
+      openVisitsView(c, index);
+    };
+    card.addEventListener('click', go);
+    card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
+    listEl.appendChild(card);
+  });
+
+  document.getElementById('list-count').textContent = shown.length;
+}
+
+document.querySelectorAll('.list-mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if(listMode === tab.dataset.mode) return;
+    listMode = tab.dataset.mode;
+    document.querySelectorAll('.list-mode-tab').forEach(t => t.classList.toggle('active', t===tab));
+    document.getElementById('list-head-label').textContent = listMode==='visits' ? 'Visits (chronological)' : 'Logbook';
+    const searchInput = document.getElementById('search');
+    searchInput.placeholder = listMode==='visits'
+      ? 'Search by place, person, or route…' : 'Search by name or rock type…';
+    searchInput.setAttribute('aria-label', listMode==='visits' ? 'Search visits' : 'Search places');
+    render(document.getElementById('search').value);
+  });
+});
 
 function updateStats(){
   document.getElementById('stat-total').textContent = CRAGS.length;
@@ -991,7 +1071,7 @@ function renderVisitDetail(v){
   visitDetail.innerHTML = meta + summary + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');
 }
 
-function openVisitsView(crag){
+function openVisitsView(crag, targetIndex){
   closeModal(); closePicker(); closeVisitModal();
   visitsViewCrag = crag;
   visitsViewTitle.textContent = crag.name;
@@ -1012,9 +1092,10 @@ function openVisitsView(crag){
     visitsTabs.appendChild(tab);
   });
   if(visits.length){
-    visitsTabs.firstElementChild.classList.add('active');
-    visitsViewIndex = 0;
-    renderVisitDetail(visits[0]);
+    const idx = (targetIndex!==undefined && targetIndex>=0 && targetIndex<visits.length) ? targetIndex : 0;
+    visitsTabs.children[idx].classList.add('active');
+    visitsViewIndex = idx;
+    renderVisitDetail(visits[idx]);
     visitDetailActions.style.display = '';
   } else {
     visitsViewIndex = null;

@@ -252,7 +252,7 @@ const CRAGS = [
     "link": "https://www.gulliver.it/itinerari/cannone-giova-1/",
     "visits": [
       {
-        "date": "2026-07-21",
+        "date": "2026-06-21",
         "with": "Japo, Andre, SaraG, Ire",
         "routes": [
           {
@@ -415,6 +415,46 @@ const CRAGS = [
           {
             "name": "Traverso",
             "grade": "6b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Falesia Introbio",
+    "lat": 45.960178,
+    "lng": 9.452256,
+    "parkingLat": 45.960706,
+    "parkingLng": 9.450489,
+    "rock": "Limestone",
+    "exposition": [
+      "Nord",
+      "Sud"
+    ],
+    "description": "Avvicinamento molto corto, chi fa sicura sta all'ombra. Dipende un po' dal settore ma si trovano anche tiri completamente in ombra",
+    "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/introbio/index.html",
+    "visits": [
+      {
+        "date": "2026-05-24",
+        "with": "SaraG, Ire, Nico",
+        "summary": "Secondo giorno di fila di falesia. ci sono dei bervi multipitch molto belli alla placca condor",
+        "routes": [
+          {
+            "grade": "5c",
+            "comment": "multipitch"
+          },
+          {
+            "grade": "6a+",
+            "comment": "tacchette già provato in passato, carino e di dita"
+          },
+          {
+            "grade": "6b",
+            "comment": "blocco di entrata impossibile"
+          },
+          {
+            "grade": "6a",
+            "comment": "tecnico al muro, caduto nel passaggio in strapoimbo"
           }
         ]
       }

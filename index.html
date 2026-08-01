@@ -237,6 +237,7 @@
     font-size:11px; letter-spacing:.08em; text-transform:uppercase;
     color:var(--sage); margin-bottom:8px;
   }
+  .visit-detail .description{ margin:0 0 10px; font-size:13px; line-height:1.45; color:var(--pine-2); }
   .visit-detail ul{ margin:0; padding-left:18px; font-size:14px; line-height:1.65; color:var(--ink); }
   .visit-detail .empty{ color:var(--sage); font-size:13px; }
   .visit-detail-actions{ display:flex; gap:8px; }
@@ -263,16 +264,17 @@
   }
   .visit-head button:hover, .route-row button:hover{ color:var(--marker); }
   .visit-row{ display:flex; gap:8px; }
+  .visit-summary{ width:100%; resize:vertical; min-height:44px; font-size:13px; }
   .routes-list{ display:flex; flex-direction:column; gap:6px; }
   .route-row{ display:flex; gap:6px; align-items:center; }
   .route-row .route-name{ flex:1.2; }
   .route-row .route-comment{ flex:1.6; }
-  .visit-block input{
+  .visit-block input, .visit-block textarea{
     font-family:"Archivo",sans-serif; font-size:13px; padding:7px 9px;
     border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
     min-width:0;
   }
-  .visit-block input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .visit-block input:focus, .visit-block textarea:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
   .visit-block input[type="date"]{ flex:0 0 140px; }
   .route-row .route-grade{ font-family:"Space Mono",monospace; flex:0 0 70px; }
   .btn-add-route{
@@ -757,6 +759,7 @@ function makeVisitBlock(onChange){
       <input type="date" class="visit-date" />
       <input type="text" class="visit-with" placeholder="With: Marco, Giulia" />
     </div>
+    <textarea class="visit-summary" placeholder="Summary of the visit (optional)"></textarea>
     <div class="routes-list"></div>
     <button type="button" class="btn-add-route">+ Add route</button>`;
   block.querySelector('.routes-list').appendChild(makeRouteRow(onChange));
@@ -782,6 +785,7 @@ function renumberVisits(container){
 function fillVisitBlock(block, visit, onChange){
   block.querySelector('.visit-date').value = visit.date || '';
   block.querySelector('.visit-with').value = visit.with || '';
+  block.querySelector('.visit-summary').value = visit.summary || '';
   const routesList = block.querySelector('.routes-list');
   routesList.innerHTML = '';
   const routes = (visit.routes && visit.routes.length) ? visit.routes : [{}];
@@ -818,6 +822,7 @@ function collectVisits(container){
   return [...container.querySelectorAll('.visit-block')].map(block => {
     const date = block.querySelector('.visit-date').value.trim();
     const withPeople = block.querySelector('.visit-with').value.trim();
+    const summary = block.querySelector('.visit-summary').value.trim();
     const routes = [...block.querySelectorAll('.route-row')].map(row => {
       const name = row.querySelector('.route-name').value.trim();
       const grade = row.querySelector('.route-grade').value.trim();
@@ -832,6 +837,7 @@ function collectVisits(container){
     const visit = {};
     if(date) visit.date = date;
     if(withPeople) visit.with = withPeople;
+    if(summary) visit.summary = summary;
     if(routes.length) visit.routes = routes;
     return visit;
   }).filter(v => Object.keys(v).length > 0);
@@ -949,11 +955,12 @@ let visitsViewCrag = null, visitsViewIndex = null;
 function renderVisitDetail(v){
   const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
   const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
+  const summary = v.summary ? `<div class="description">${esc(v.summary)}</div>` : '';
   const routes = (v.routes||[]).map(r => {
     const bits = [r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
     return `<li>${bits.join(' — ')}</li>`;
   }).join('');
-  visitDetail.innerHTML = meta + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');
+  visitDetail.innerHTML = meta + summary + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');
 }
 
 function openVisitsView(crag){

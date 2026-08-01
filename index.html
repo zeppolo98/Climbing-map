@@ -218,6 +218,15 @@
   .field .mono input, .field input.mono{ font-family:"Space Mono",monospace; }
   .field input:focus, .field textarea:focus, .field select:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
   .field textarea{ resize:vertical; min-height:60px; }
+  .exposition-group{ display:flex; flex-wrap:wrap; gap:8px; }
+  .exposition-option{
+    display:flex; align-items:center; gap:6px;
+    font-family:"Archivo",sans-serif; font-size:13px; cursor:pointer;
+    padding:7px 12px; border-radius:999px; border:1px solid var(--line);
+    background:#fff; color:var(--ink); user-select:none;
+  }
+  .exposition-option input{ margin:0; accent-color:var(--pine); }
+  .exposition-option:has(input:checked){ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
 
   .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
   .visit-modal-body{ padding:14px 22px 4px; display:flex; flex-direction:column; gap:10px; }
@@ -380,7 +389,15 @@
         <input name="parkingCoords" class="mono" placeholder="46.076245, 9.435389  or  46°04'34.5&quot;N 9°26'07.4&quot;E" />
       </div>
       <div class="field full"><label>Rock <span style="opacity:.6">(optional)</span></label><input name="rock" placeholder="Limestone" /></div>
-      <div class="field full"><label>Exposition <span style="opacity:.6">(optional)</span></label><input name="exposition" placeholder="South-facing, sun until 2pm" /></div>
+      <div class="field full">
+        <label>Exposition <span style="opacity:.6">(optional, pick all that apply)</span></label>
+        <div class="exposition-group" id="expositionGroup">
+          <label class="exposition-option"><input type="checkbox" name="exposition" value="Nord" /> Nord</label>
+          <label class="exposition-option"><input type="checkbox" name="exposition" value="Sud" /> Sud</label>
+          <label class="exposition-option"><input type="checkbox" name="exposition" value="Est" /> Est</label>
+          <label class="exposition-option"><input type="checkbox" name="exposition" value="Ovest" /> Ovest</label>
+        </div>
+      </div>
       <div class="field full"><label>Description <span style="opacity:.6">(optional)</span></label><textarea name="description" placeholder="Approach, style, when to go…"></textarea></div>
       <div class="field full"><label>Link <span style="opacity:.6">(optional)</span></label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
       <div class="field full">
@@ -464,7 +481,7 @@ function popupHTML(c){
     ['type', typeLabel(c.type)],
     ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
     c.rock && ['rock', c.rock],
-    c.exposition && ['exposition', c.exposition],
+    c.exposition && ['exposition', expositionLabel(c.exposition)],
     hasParking && ['parking', `${(+c.parkingLat).toFixed(4)}, ${(+c.parkingLng).toFixed(4)}`]
   ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join('');
   return `<div class="pop">
@@ -481,6 +498,14 @@ function popupHTML(c){
 }
 function esc(s){ return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 function noop(){}
+
+function expositionArray(exposition){
+  if(Array.isArray(exposition)) return exposition;
+  return exposition ? [exposition] : [];
+}
+function expositionLabel(exposition){
+  return expositionArray(exposition).join(', ');
+}
 
 function downloadCragsFile(){
   const header = `/* =====================================================================\n   YOUR CRAGS — edit this list. Each entry is one place you've climbed.\n   Only name + lat + lng are required; the rest are optional flavour.\n   ===================================================================== */\n`;
@@ -509,7 +534,7 @@ function render(filter=""){
   const f = filter.trim().toLowerCase();
 
   const shown = CRAGS.filter(c =>
-    !f || [c.name,c.rock].some(v => v && v.toLowerCase().includes(f)));
+    !f || [c.name, c.rock, expositionLabel(c.exposition)].some(v => v && v.toLowerCase().includes(f)));
 
   shown.forEach((c) => {
     const marker = L.marker([c.lat, c.lng], { icon:pinIcon() }).addTo(map).bindPopup(popupHTML(c));
@@ -521,7 +546,7 @@ function render(filter=""){
       <div class="meta">
         <span class="tagpill">${esc(typeLabel(c.type))}</span>
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
-        ${c.exposition?`<span class="tagpill">${esc(c.exposition)}</span>`:''}
+        ${c.exposition?`<span class="tagpill">${esc(expositionLabel(c.exposition))}</span>`:''}
         ${c.visits&&c.visits.length?`<span class="tagpill">${c.visits.length} visit${c.visits.length>1?'s':''}</span>`:''}
       </div>
       <div class="card-actions">
@@ -600,7 +625,8 @@ function openEditModal(crag){
   form.parkingCoords.value = (crag.parkingLat!==undefined && crag.parkingLng!==undefined)
     ? `${crag.parkingLat}, ${crag.parkingLng}` : '';
   form.rock.value = crag.rock || '';
-  form.exposition.value = crag.exposition || '';
+  const selectedExposition = expositionArray(crag.exposition);
+  form.querySelectorAll('input[name="exposition"]').forEach(cb => cb.checked = selectedExposition.includes(cb.value));
   form.description.value = crag.description || '';
   form.link.value = crag.link || '';
   fillVisitsList(visitsList, crag.visits, noop);
@@ -847,11 +873,13 @@ function readForm(){
   const g = n => form[n].value.trim();
   const parking = parseCoordinates(g('parkingCoords'));
   const visits = collectVisits(visitsList);
+  const exposition = [...form.querySelectorAll('input[name="exposition"]:checked')].map(cb => cb.value);
   const o = { type:g('type'), name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
               parkingLng: parking ? parking.lng : undefined,
-              rock:g('rock'), exposition:g('exposition'), description:g('description'), link:g('link'),
+              rock:g('rock'), exposition: exposition.length ? exposition : undefined,
+              description:g('description'), link:g('link'),
               visits: visits.length ? visits : undefined };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;

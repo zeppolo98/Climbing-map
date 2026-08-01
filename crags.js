@@ -9,7 +9,9 @@ const CRAGS = [
     "lat": 45.908774,
     "lng": 9.434212,
     "rock": "Limestone",
-    "exposition": ["Nord"],
+    "exposition": [
+      "Nord"
+    ],
     "description": "In the shadow all day and super fresh even in summer\n3 settori: \n- Scala dei Sogni, tiri di quinto, ben appigliati. 4 sesti molto belli e sempre da tirare\n- Muretto del Gio: 4 tiri di sesto, placca a tacche e qualche strapiombo\n- Muro del Butch: Tiri lunghi e duri con stili che variano, più placca",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/ilmurodelbutch/index.html",
     "visits": [
@@ -80,7 +82,9 @@ const CRAGS = [
     "parkingLat": 45.828727,
     "parkingLng": 9.335894,
     "rock": "Limestone",
-    "exposition": ["Sud"],
+    "exposition": [
+      "Sud"
+    ],
     "description": "Mostly in the shadow. Molti settori, quelli coi gradi più bassi sono molto unti. Ottima per il dopo lavoro e avvicinamento breve. Settore Valle degli Orti il migliore con anche gradi più alti fino 6c",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/civate/index.html",
     "visits": [
@@ -120,7 +124,12 @@ const CRAGS = [
     "parkingLat": 46.23945,
     "parkingLng": 9.627467,
     "rock": "Granite",
-    "exposition": ["Nord", "Sud", "Est", "Ovest"],
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
     "description": "Blocchi ovunque, ho una guida intera coi settori. La roccia ti mangia la pelle. Bellissima valle anche per passeggiate/vie/falesie",
     "link": "https://www.thecrag.com/it/arrampicata/italy/val-di-mello/area/1279720257",
     "visits": [
@@ -155,7 +164,9 @@ const CRAGS = [
     "parkingLat": 46.189872,
     "parkingLng": 8.756805,
     "rock": "Granite",
-    "exposition": ["Ovest"],
+    "exposition": [
+      "Ovest"
+    ],
     "description": "Sole dopo le 11 a.m. Tutta placca, molto sporca occhio",
     "link": "https://www.sassbaloss.com/pagine/uscite/harlem/harlem.htm",
     "visits": [
@@ -180,7 +191,9 @@ const CRAGS = [
     "parkingLat": 46.285113,
     "parkingLng": 8.287014,
     "rock": "Granite",
-    "exposition": ["Nord"],
+    "exposition": [
+      "Nord"
+    ],
     "description": "Shadow all day. Bella roccia, più di 70 tiri, anche se affollata c'è roba da fare, si sta al fresco anche d'estate",
     "link": "https://www.gulliver.it/itinerari/esigo-ponte-romano-falesia/",
     "visits": [
@@ -205,7 +218,9 @@ const CRAGS = [
     "parkingLat": 45.954905,
     "parkingLng": 9.465767,
     "rock": "Limestone",
-    "exposition": ["Sud"],
+    "exposition": [
+      "Sud"
+    ],
     "description": "Sentieri e avvicinamento segnalati molto male. Attacchi delle vie anche peggio. Pienissimo di vie chiodate a caso che si incrociano, leggere più relazioni attentamente.",
     "link": "https://www.gulliver.it/itinerari/zucco-dellangelone/",
     "visits": [
@@ -230,7 +245,9 @@ const CRAGS = [
     "parkingLat": 45.984583,
     "parkingLng": 8.400296,
     "rock": "Limestone",
-    "exposition": ["Est"],
+    "exposition": [
+      "Est"
+    ],
     "description": "Falesia in ombra dalle 11, roccia nera che scotta al sole. gradi fino al 6b, vecchia palestra CAI.",
     "link": "https://www.gulliver.it/itinerari/cannone-giova-1/",
     "visits": [
@@ -255,7 +272,12 @@ const CRAGS = [
     "parkingLat": 45.684741,
     "parkingLng": 9.458401,
     "rock": "Conglomerato",
-    "exposition": ["Nord", "Sud", "Est", "Ovest"],
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
     "description": "Roccia particolare, di difficile lettura le prime volte, ma molto bella. diversi settori con tutti i gradi di difficoltà. Ottima anche d'estate, occhio alle zanzare",
     "link": "https://www.falesia.it/crag/116/calusco-paderno.html",
     "visits": [
@@ -294,7 +316,12 @@ const CRAGS = [
     "parkingLat": 44.885185,
     "parkingLng": 6.450342,
     "rock": "Granite",
-    "exposition": ["Nord", "Sud", "Est", "Ovest"],
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
     "description": "Bellissimo posto pieni di vie/falesie/blocchi. il campeggio è molto comodo e costa poco",
     "visits": [
       {
@@ -332,7 +359,9 @@ const CRAGS = [
     "parkingLat": 45.776395,
     "parkingLng": 9.781794,
     "rock": "Limestone",
-    "exposition": ["Nord"],
+    "exposition": [
+      "Nord"
+    ],
     "description": "Ci sono vari settori, su theCrag sono segnati più tiri di quelli che effettivamente abbiamo trovato. Bella falesia estiva, gradi non banali, dal 5c in su",
     "link": "https://www.thecrag.com/it/arrampicata/italy/valgua",
     "visits": [
@@ -360,6 +389,32 @@ const CRAGS = [
           {
             "name": "Donald Duck",
             "grade": "5c"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Moregallo",
+    "lat": 45.881456,
+    "lng": 9.340185,
+    "parkingLat": 45.880406,
+    "parkingLng": 9.344428,
+    "rock": "Limestone",
+    "exposition": [
+      "Ovest"
+    ],
+    "description": "Traverso bellissimo sul lago, a pochi metri di altezza dall'acqua, per qualunque livello. stando bassi è più facile, la parte finale bianca è dura. C'è anche una falesia con tiri sui sesti.",
+    "visits": [
+      {
+        "date": "2026-07-30",
+        "with": "Ire, Fra, Nico, Andre, Fede, Chiara, AndreB, BeaBassi",
+        "summary": "Fatto il traverso fino all'inizio della parte bianca. Caduto una volta perchè si è rotto un piede. Eravamo tantissimi e poi grigliata sulla spiaggia",
+        "routes": [
+          {
+            "name": "Traverso",
+            "grade": "6b"
           }
         ]
       }

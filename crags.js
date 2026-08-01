@@ -14,6 +14,11 @@ const CRAGS = [
     ],
     "description": "In the shadow all day and super fresh even in summer\n3 settori: \n- Scala dei Sogni, tiri di quinto, ben appigliati. 4 sesti molto belli e sempre da tirare\n- Muretto del Gio: 4 tiri di sesto, placca a tacche e qualche strapiombo\n- Muro del Butch: Tiri lunghi e duri con stili che variano, più placca",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/ilmurodelbutch/index.html",
+    "sectors": [
+      "Scala dei sogni",
+      "Muretto del Gio",
+      "Muro del Butch"
+    ],
     "visits": [
       {
         "date": "2026-07-11",
@@ -22,21 +27,25 @@ const CRAGS = [
           {
             "name": "Su alto",
             "grade": "6c",
+            "sector": "Scala dei sogni",
             "comment": "primo 6c!!! alla scala dei sogni l'unico che c'è"
           },
           {
             "name": "Busazza",
             "grade": "6b",
+            "sector": "Scala dei sogni",
             "comment": "alla scala dei sogni il solito molto bello e fisico"
           },
           {
             "name": "Al guanaco",
             "grade": "6b",
+            "sector": "Muretto del Gio",
             "comment": "al muretto del Gio di fianco al 6c, molto carino e continuo di placca a tacche, fine atletica in strapiombo"
           },
           {
             "name": "L'amata grigna",
             "grade": "6a",
+            "sector": "Scala dei sogni",
             "comment": "alla scala dei sogni, tecnico molto bello"
           }
         ]
@@ -48,11 +57,13 @@ const CRAGS = [
           {
             "name": "Su alto",
             "grade": "6c",
+            "sector": "Scala dei sogni",
             "comment": "non chiuso ma fattibile"
           },
           {
             "name": "Fratelli d'arte",
             "grade": "6b+",
+            "sector": "Muretto del Gio",
             "comment": "al muretto, non chiuso, intro dura poi di resistenza"
           }
         ]
@@ -62,13 +73,20 @@ const CRAGS = [
         "with": "Chiara, Fra, Luca, Andre",
         "routes": [
           {
-            "grade": "6b"
+            "name": "Busazza",
+            "grade": "6b",
+            "sector": "Scala dei sogni",
+            "comment": "Chiuso al primo giro fanlmente!"
           },
           {
-            "grade": "6a+"
+            "grade": "6a+",
+            "sector": "Muro del Butch",
+            "comment": "Blocco tecnico in cima, prima una scala"
           },
           {
-            "grade": "6a+"
+            "grade": "6a+",
+            "sector": "Muro del Butch",
+            "comment": "di continuità con strapimbo e poi placca, mai banale"
           }
         ]
       }

@@ -287,20 +287,40 @@
   .route-row{ display:flex; gap:6px; align-items:center; }
   .route-row .route-name{ flex:1.2; }
   .route-row .route-comment{ flex:1.6; }
-  .visit-block input, .visit-block textarea{
+  .visit-block input, .visit-block textarea, .visit-block select{
     font-family:"Archivo",sans-serif; font-size:13px; padding:7px 9px;
     border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
     min-width:0;
   }
-  .visit-block input:focus, .visit-block textarea:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .visit-block input:focus, .visit-block textarea:focus, .visit-block select:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
   .visit-block input[type="date"]{ flex:0 0 140px; }
   .route-row .route-grade{ font-family:"Space Mono",monospace; flex:0 0 70px; }
+  .route-row .route-sector{ flex:0 0 130px; }
   .btn-add-route{
     align-self:flex-start; font-size:12px; padding:5px 10px; border-radius:7px;
     border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
   }
   .btn-add-route:hover{ background:var(--limestone); }
   .btn-add-visit{ align-self:flex-start; }
+
+  /* ---------- Sectors ---------- */
+  .sectors-list{ display:flex; flex-direction:column; gap:6px; }
+  .sector-row{ display:flex; gap:6px; align-items:center; }
+  .sector-row .sector-name{
+    flex:1; font-family:"Archivo",sans-serif; font-size:13px; padding:7px 9px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
+  }
+  .sector-row .sector-name:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+  .sector-row button{
+    background:none; border:none; font-size:16px; line-height:1;
+    cursor:pointer; color:var(--sage); padding:0 2px;
+  }
+  .sector-row button:hover{ color:var(--marker); }
+  .btn-add-sector{
+    align-self:flex-start; font-size:12px; padding:5px 10px; border-radius:7px;
+    border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
+  }
+  .btn-add-sector:hover{ background:var(--limestone); }
   .card-actions{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .card-actions button{
     font-size:11.5px; padding:5px 10px; border-radius:7px;
@@ -414,6 +434,11 @@
       <div class="field full"><label>Description <span style="opacity:.6">(optional)</span></label><textarea name="description" placeholder="Approach, style, when to go…"></textarea></div>
       <div class="field full"><label>Link <span style="opacity:.6">(optional)</span></label><input name="link" placeholder="https://www.thecrag.com/…" /></div>
       <div class="field full">
+        <label>Sectors <span style="opacity:.6">(optional)</span></label>
+        <div id="sectorsList" class="sectors-list"></div>
+        <button type="button" class="btn btn-ghost btn-add-sector" id="addSectorBtn">+ Add sector</button>
+      </div>
+      <div class="field full">
         <label>Visits <span style="opacity:.6">(optional)</span></label>
         <div id="visitsList"></div>
         <button type="button" class="btn btn-ghost btn-add-visit" id="addVisitBtn">+ Add a visit</button>
@@ -495,8 +520,9 @@ function popupHTML(c){
     ['coords', `${(+c.lat).toFixed(4)}, ${(+c.lng).toFixed(4)}`],
     c.rock && ['rock', c.rock],
     c.exposition && ['exposition', expositionLabel(c.exposition)],
-    hasParking && ['parking', `${(+c.parkingLat).toFixed(4)}, ${(+c.parkingLng).toFixed(4)}`]
-  ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join('');
+    hasParking && ['parking', `${(+c.parkingLat).toFixed(4)}, ${(+c.parkingLng).toFixed(4)}`],
+    c.sectors && c.sectors.length && ['sectors', c.sectors.join(', ')]
+  ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${esc(v)}</span></div>`).join('');
   return `<div class="pop">
     <h3>${esc(c.name)}</h3>
     ${rows}
@@ -574,6 +600,7 @@ function renderPlacesList(shown){
         <span class="tagpill">${esc(typeLabel(c.type))}</span>
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
         ${c.exposition?`<span class="tagpill">${esc(expositionLabel(c.exposition))}</span>`:''}
+        ${c.sectors&&c.sectors.length?`<span class="tagpill">${c.sectors.length} sector${c.sectors.length>1?'s':''}</span>`:''}
         ${c.visits&&c.visits.length?`<span class="tagpill">${c.visits.length} visit${c.visits.length>1?'s':''}</span>`:''}
       </div>
       <div class="card-actions">
@@ -603,13 +630,14 @@ function renderVisitsList(f){
 
   const shown = allVisits.filter(({crag:c, visit:v}) => {
     if(!f) return true;
-    const routeText = (v.routes||[]).map(r => [r.name,r.grade,r.comment].filter(Boolean).join(' ')).join(' ');
+    const routeText = (v.routes||[]).map(r => [r.name,r.grade,r.sector,r.comment].filter(Boolean).join(' ')).join(' ');
     const haystack = [c.name, v.with, v.summary, routeText].filter(Boolean).join(' ').toLowerCase();
     return haystack.includes(f);
   });
 
   shown.forEach(({crag:c, visit:v, index}) => {
     const routeGrades = (v.routes||[]).map(r => r.grade).filter(Boolean);
+    const visitSectors = [...new Set((v.routes||[]).map(r => r.sector).filter(Boolean))];
     const card = document.createElement('div');
     card.className = 'card'; card.tabIndex = 0;
     card.innerHTML = `<h3>${esc(c.name)}</h3>
@@ -617,6 +645,7 @@ function renderVisitsList(f){
         ${v.date?`<span class="tagpill mono">${esc(v.date)}</span>`:''}
         ${v.with?`<span class="tagpill">with ${esc(v.with)}</span>`:''}
         ${routeGrades.length?`<span class="tagpill">${routeGrades.length} route${routeGrades.length>1?'s':''}</span>`:''}
+        ${visitSectors.length?`<span class="tagpill">${esc(visitSectors.join(', '))}</span>`:''}
       </div>
       ${v.summary?`<div class="visit-card-summary">${esc(v.summary)}</div>`:''}`;
     const go = () => {
@@ -709,7 +738,8 @@ function openEditModal(crag){
   form.querySelectorAll('input[name="exposition"]').forEach(cb => cb.checked = selectedExposition.includes(cb.value));
   form.description.value = crag.description || '';
   form.link.value = crag.link || '';
-  fillVisitsList(visitsList, crag.visits, noop);
+  fillSectorsList(sectorsList, crag.sectors, onSectorsChanged);
+  fillVisitsList(visitsList, crag.visits, noop, () => collectSectors(sectorsList));
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
   syncTempMarker(crag.lat, crag.lng);
   overlay.classList.add('show');
@@ -731,7 +761,8 @@ map.on('click', e => {
   arm(false);
   form.reset();
   resetModalToAddMode();
-  resetVisits(visitsList, noop);
+  fillSectorsList(sectorsList, [], onSectorsChanged);
+  resetVisits(visitsList, noop, () => collectSectors(sectorsList));
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
   syncTempMarker();
@@ -777,7 +808,8 @@ pickerNextBtn.addEventListener('click', () => {
   coordPicker.classList.remove('show');
   form.reset();
   resetModalToAddMode();
-  resetVisits(visitsList, noop);
+  fillSectorsList(sectorsList, [], onSectorsChanged);
+  resetVisits(visitsList, noop, () => collectSectors(sectorsList));
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
   overlay.classList.add('show');
@@ -838,22 +870,74 @@ function parseCoordinates(str){
   return null;
 }
 
+/* ---------- Sectors ---------- */
+const sectorsList = document.getElementById('sectorsList');
+
+function sectorOptionsHTML(sectors){
+  return ['<option value="">— sector —</option>']
+    .concat((sectors||[]).map(s => `<option value="${esc(s)}">${esc(s)}</option>`))
+    .join('');
+}
+
+function makeSectorRow(onChange){
+  const row = document.createElement('div');
+  row.className = 'sector-row';
+  row.innerHTML = `
+    <input type="text" class="sector-name" placeholder="Sector name" />
+    <button type="button" aria-label="Remove sector">×</button>`;
+  row.querySelector('button').addEventListener('click', () => { row.remove(); onChange(); });
+  row.querySelector('.sector-name').addEventListener('input', onChange);
+  return row;
+}
+
+function fillSectorsList(container, sectors, onChange){
+  container.innerHTML = '';
+  (sectors || []).forEach(s => {
+    const row = makeSectorRow(onChange);
+    row.querySelector('.sector-name').value = s;
+    container.appendChild(row);
+  });
+}
+
+function collectSectors(container){
+  return [...container.querySelectorAll('.sector-name')].map(i => i.value.trim()).filter(Boolean);
+}
+
+function onSectorsChanged(){
+  refreshSectorOptions(visitsList, collectSectors(sectorsList));
+}
+
+function refreshSectorOptions(container, sectors){
+  container.querySelectorAll('.route-sector').forEach(select => {
+    const current = select.value;
+    select.innerHTML = sectorOptionsHTML(sectors);
+    if(sectors.includes(current)) select.value = current;
+  });
+}
+
+document.getElementById('addSectorBtn').addEventListener('click', () => {
+  sectorsList.appendChild(makeSectorRow(onSectorsChanged));
+  onSectorsChanged();
+});
+
 /* ---------- Visits ---------- */
 const visitsList = document.getElementById('visitsList');
 
-function makeRouteRow(onChange){
+function makeRouteRow(onChange, sectors){
   const row = document.createElement('div');
   row.className = 'route-row';
   row.innerHTML = `
     <input type="text" class="route-name" placeholder="Route name" />
     <input type="text" class="route-grade mono" placeholder="Grade" />
+    <select class="route-sector">${sectorOptionsHTML(sectors)}</select>
     <input type="text" class="route-comment" placeholder="Comment" />
     <button type="button" aria-label="Remove route">×</button>`;
   row.querySelector('button').addEventListener('click', () => { row.remove(); onChange(); });
   return row;
 }
 
-function makeVisitBlock(onChange){
+function makeVisitBlock(onChange, getSectors){
+  getSectors = getSectors || (() => []);
   const block = document.createElement('div');
   block.className = 'visit-block';
   block.innerHTML = `
@@ -868,9 +952,9 @@ function makeVisitBlock(onChange){
     <textarea class="visit-summary" placeholder="Summary of the visit (optional)"></textarea>
     <div class="routes-list"></div>
     <button type="button" class="btn-add-route">+ Add route</button>`;
-  block.querySelector('.routes-list').appendChild(makeRouteRow(onChange));
+  block.querySelector('.routes-list').appendChild(makeRouteRow(onChange, getSectors()));
   block.querySelector('.btn-add-route').addEventListener('click', () => {
-    block.querySelector('.routes-list').appendChild(makeRouteRow(onChange));
+    block.querySelector('.routes-list').appendChild(makeRouteRow(onChange, getSectors()));
     onChange();
   });
   block.querySelector('.visit-head button').addEventListener('click', () => {
@@ -888,7 +972,9 @@ function renumberVisits(container){
   });
 }
 
-function fillVisitBlock(block, visit, onChange){
+function fillVisitBlock(block, visit, onChange, getSectors){
+  getSectors = getSectors || (() => []);
+  const sectors = getSectors();
   block.querySelector('.visit-date').value = visit.date || '';
   block.querySelector('.visit-with').value = visit.with || '';
   block.querySelector('.visit-summary').value = visit.summary || '';
@@ -896,31 +982,32 @@ function fillVisitBlock(block, visit, onChange){
   routesList.innerHTML = '';
   const routes = (visit.routes && visit.routes.length) ? visit.routes : [{}];
   routes.forEach(r => {
-    const row = makeRouteRow(onChange);
+    const row = makeRouteRow(onChange, sectors);
     row.querySelector('.route-name').value = r.name || '';
     row.querySelector('.route-grade').value = r.grade || '';
     row.querySelector('.route-comment').value = r.comment || '';
+    if(r.sector) row.querySelector('.route-sector').value = r.sector;
     routesList.appendChild(row);
   });
 }
 
-function fillVisitsList(container, visits, onChange){
+function fillVisitsList(container, visits, onChange, getSectors){
   container.innerHTML = '';
   const list = (visits && visits.length) ? visits : [{}];
   list.forEach(v => {
-    const block = makeVisitBlock(onChange);
-    fillVisitBlock(block, v, onChange);
+    const block = makeVisitBlock(onChange, getSectors);
+    fillVisitBlock(block, v, onChange, getSectors);
     container.appendChild(block);
   });
   renumberVisits(container);
 }
 
-function resetVisits(container, onChange){
-  fillVisitsList(container, [], onChange);
+function resetVisits(container, onChange, getSectors){
+  fillVisitsList(container, [], onChange, getSectors);
 }
 
 document.getElementById('addVisitBtn').addEventListener('click', () => {
-  visitsList.appendChild(makeVisitBlock(noop));
+  visitsList.appendChild(makeVisitBlock(noop, () => collectSectors(sectorsList)));
   renumberVisits(visitsList);
 });
 
@@ -932,10 +1019,12 @@ function collectVisits(container){
     const routes = [...block.querySelectorAll('.route-row')].map(row => {
       const name = row.querySelector('.route-name').value.trim();
       const grade = row.querySelector('.route-grade').value.trim();
+      const sector = row.querySelector('.route-sector').value.trim();
       const comment = row.querySelector('.route-comment').value.trim();
       const r = {};
       if(name) r.name = name;
       if(grade) r.grade = grade;
+      if(sector) r.sector = sector;
       if(comment) r.comment = comment;
       return r;
     }).filter(r => Object.keys(r).length > 0);
@@ -954,12 +1043,14 @@ function readForm(){
   const parking = parseCoordinates(g('parkingCoords'));
   const visits = collectVisits(visitsList);
   const exposition = [...form.querySelectorAll('input[name="exposition"]:checked')].map(cb => cb.value);
+  const sectors = collectSectors(sectorsList);
   const o = { type:g('type'), name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
               parkingLng: parking ? parking.lng : undefined,
               rock:g('rock'), exposition: exposition.length ? exposition : undefined,
               description:g('description'), link:g('link'),
+              sectors: sectors.length ? sectors : undefined,
               visits: visits.length ? visits : undefined };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;
@@ -1010,8 +1101,9 @@ function openVisitModal(crag){
   visitTargetCrag = crag;
   editingVisitIndex = null;
   document.getElementById('visitModalTitle').textContent = 'Add a visit';
-  visitModalSub.textContent = `Add a visit to "${crag.name}". It'll be included next time you download crags.js.`;
-  resetVisits(visitAddList, noop);
+  visitModalSub.textContent = `Add a visit to "${crag.name}". It'll be included next time you download crags.js.`
+    + ((crag.sectors && crag.sectors.length) ? '' : ' No sectors defined yet — edit the place to add some.');
+  resetVisits(visitAddList, noop, () => (visitTargetCrag && visitTargetCrag.sectors) || []);
   addVisitBtn2.style.display = '';
   visitOverlay.classList.add('show');
 }
@@ -1022,8 +1114,9 @@ function openEditVisitModal(crag, index){
   document.getElementById('visitModalTitle').textContent = 'Edit visit';
   visitModalSub.textContent = `Editing a visit to "${crag.name}".`;
   visitAddList.innerHTML = '';
-  const block = makeVisitBlock(noop);
-  fillVisitBlock(block, crag.visits[index], noop);
+  const getSectors = () => (visitTargetCrag && visitTargetCrag.sectors) || [];
+  const block = makeVisitBlock(noop, getSectors);
+  fillVisitBlock(block, crag.visits[index], noop, getSectors);
   visitAddList.appendChild(block);
   renumberVisits(visitAddList);
   addVisitBtn2.style.display = 'none';
@@ -1035,7 +1128,7 @@ function closeVisitModal(){
   editingVisitIndex = null;
 }
 addVisitBtn2.addEventListener('click', () => {
-  visitAddList.appendChild(makeVisitBlock(noop));
+  visitAddList.appendChild(makeVisitBlock(noop, () => (visitTargetCrag && visitTargetCrag.sectors) || []));
   renumberVisits(visitAddList);
 });
 document.getElementById('saveVisitBtn').addEventListener('click', () => {
@@ -1065,7 +1158,7 @@ function renderVisitDetail(v){
   const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
   const summary = v.summary ? `<div class="description">${esc(v.summary)}</div>` : '';
   const routes = (v.routes||[]).map(r => {
-    const bits = [r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
+    const bits = [r.sector && `<span class="mono">[${esc(r.sector)}]</span>`, r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
     return `<li>${bits.join(' — ')}</li>`;
   }).join('');
   visitDetail.innerHTML = meta + summary + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');

@@ -105,19 +105,28 @@ const CRAGS = [
     ],
     "description": "Mostly in the shadow. Molti settori, quelli coi gradi più bassi sono molto unti. Ottima per il dopo lavoro e avvicinamento breve. Settore Valle degli Orti il migliore con anche gradi più alti fino 6c",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/civate/index.html",
+    "sectors": [
+      "Valle degli Orti",
+      "Buco della Sabbia",
+      "Amazzonia + Palestra vecchia",
+      "La balconata"
+    ],
     "visits": [
       {
         "date": "2026-06-12",
         "with": "SaraG",
+        "summary": "Unico settore di Civate che merita, tiri un po' più duri ma molto belli e lunghi e molto meno unti",
         "routes": [
           {
             "name": "Donne in attesa",
             "grade": "6a",
+            "sector": "Valle degli Orti",
             "comment": "Belo, lungo, un po' untino il passagio duro sotto"
           },
           {
             "name": "Via Nomentana",
             "grade": "6b",
+            "sector": "Valle degli Orti",
             "comment": "Bello, lungo, duro sotto. Allungo al limite"
           }
         ]
@@ -125,10 +134,11 @@ const CRAGS = [
       {
         "date": "2026-05-20",
         "with": "Luca, Fra, Chiara",
+        "summary": "Completato il settore Amazzonia e Palestra vecchia, i 6a sono banali, magari un passaggio duro. Diventano più duri se vai su dritto seguendo gli spit, spostandosi un po' sono facili",
         "routes": [
           {
             "grade": "6a",
-            "comment": "Completato il settore Amazzonia e Palestra vecchia"
+            "sector": "Amazzonia + Palestra vecchia"
           }
         ]
       }
@@ -150,24 +160,31 @@ const CRAGS = [
     ],
     "description": "Blocchi ovunque, ho una guida intera coi settori. La roccia ti mangia la pelle. Bellissima valle anche per passeggiate/vie/falesie",
     "link": "https://www.thecrag.com/it/arrampicata/italy/val-di-mello/area/1279720257",
+    "sectors": [
+      "Proprietà privata"
+    ],
     "visits": [
       {
         "date": "2026-07-05",
         "with": "Ire, Gipi, SaraS, AndreC",
+        "summary": "Compleanno di Ire, scalato con dei suoi amici stra forti. Primo 6c blocco!",
         "routes": [
           {
             "name": "Masso dei veronesi",
             "grade": "6c",
+            "sector": "Proprietà privata",
             "comment": "Primo blocco 6c! Link del 6a+ sit e del classico 6a stand"
           },
           {
             "name": "Muro dei Granchi",
             "grade": "6a+",
+            "sector": "Proprietà privata",
             "comment": "uscito a destra, duro"
           },
           {
             "name": "Muro dei Granchi",
             "grade": "6b",
+            "sector": "Proprietà privata",
             "comment": "Allungo e via"
           }
         ]
@@ -241,6 +258,9 @@ const CRAGS = [
     ],
     "description": "Sentieri e avvicinamento segnalati molto male. Attacchi delle vie anche peggio. Pienissimo di vie chiodate a caso che si incrociano, leggere più relazioni attentamente.",
     "link": "https://www.gulliver.it/itinerari/zucco-dellangelone/",
+    "sectors": [
+      "Terzo sperone"
+    ],
     "visits": [
       {
         "date": "2026-06-13",
@@ -249,6 +269,7 @@ const CRAGS = [
           {
             "name": "Ortofrsco + Schiavi della pietra",
             "grade": "5b",
+            "sector": "Terzo sperone",
             "comment": "Facili, ma molto carine. Prime due soste di ortofresco mancanti"
           }
         ]
@@ -298,6 +319,9 @@ const CRAGS = [
     ],
     "description": "Roccia particolare, di difficile lettura le prime volte, ma molto bella. diversi settori con tutti i gradi di difficoltà. Ottima anche d'estate, occhio alle zanzare",
     "link": "https://www.falesia.it/crag/116/calusco-paderno.html",
+    "sectors": [
+      "Settore 1 (più vicino all'ingresso)"
+    ],
     "visits": [
       {
         "date": "2026-06-06",
@@ -305,21 +329,25 @@ const CRAGS = [
         "routes": [
           {
             "name": "Mal di dita",
-            "grade": "5c"
+            "grade": "5c",
+            "sector": "Settore 1 (più vicino all'ingresso)"
           },
           {
             "name": "Spirito solitario",
             "grade": "6a+",
+            "sector": "Settore 1 (più vicino all'ingresso)",
             "comment": "continuo"
           },
           {
             "name": "Money Penny",
             "grade": "6a+",
+            "sector": "Settore 1 (più vicino all'ingresso)",
             "comment": "Incomprensibile"
           },
           {
             "name": "Grazie Cinzia diretto",
             "grade": "6b",
+            "sector": "Settore 1 (più vicino all'ingresso)",
             "comment": "carino di dita"
           }
         ]
@@ -382,6 +410,9 @@ const CRAGS = [
     ],
     "description": "Ci sono vari settori, su theCrag sono segnati più tiri di quelli che effettivamente abbiamo trovato. Bella falesia estiva, gradi non banali, dal 5c in su",
     "link": "https://www.thecrag.com/it/arrampicata/italy/valgua",
+    "sectors": [
+      "Minolandia"
+    ],
     "visits": [
       {
         "date": "2026-07-25",
@@ -389,24 +420,29 @@ const CRAGS = [
         "routes": [
           {
             "name": "Prendi il fossile",
-            "grade": "6a"
+            "grade": "6a",
+            "sector": "Minolandia"
           },
           {
             "name": "Rovescio d'occasione",
-            "grade": "6a+"
+            "grade": "6a+",
+            "sector": "Minolandia"
           },
           {
             "name": "Una gita con Roby",
-            "grade": "6a+"
+            "grade": "6a+",
+            "sector": "Minolandia"
           },
           {
             "name": "Boletus Edulis",
             "grade": "7a",
+            "sector": "Minolandia",
             "comment": "fatto di scaldo e sucato male neanche finito, da riprovare"
           },
           {
             "name": "Donald Duck",
-            "grade": "5c"
+            "grade": "5c",
+            "sector": "Minolandia"
           }
         ]
       }
@@ -452,6 +488,11 @@ const CRAGS = [
     ],
     "description": "Avvicinamento molto corto, chi fa sicura sta all'ombra. Dipende un po' dal settore ma si trovano anche tiri completamente in ombra",
     "link": "https://larioclimb.paolo-sonja.net/falesie_lecco/introbio/index.html",
+    "sectors": [
+      "Sasso d'Introbio",
+      "Pala Condor",
+      "Muro d'Introbio"
+    ],
     "visits": [
       {
         "date": "2026-05-24",
@@ -460,18 +501,22 @@ const CRAGS = [
         "routes": [
           {
             "grade": "5c",
+            "sector": "Pala Condor",
             "comment": "multipitch"
           },
           {
             "grade": "6a+",
+            "sector": "Pala Condor",
             "comment": "tacchette già provato in passato, carino e di dita"
           },
           {
             "grade": "6b",
+            "sector": "Pala Condor",
             "comment": "blocco di entrata impossibile"
           },
           {
             "grade": "6a",
+            "sector": "Muro d'Introbio",
             "comment": "tecnico al muro, caduto nel passaggio in strapoimbo"
           }
         ]

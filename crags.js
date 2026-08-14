@@ -522,5 +522,40 @@ const CRAGS = [
         ]
       }
     ]
+  },
+  {
+    "type": "multipitch",
+    "name": "Grignetta",
+    "lat": 45.920542,
+    "lng": 9.388661,
+    "parkingLat": 45.905628,
+    "parkingLng": 9.394608,
+    "rock": "Limestone",
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
+    "description": "Viene giù tutto, bussare sempre. Piena di vie molto belle anche storiche principalmente da integrare. Avvicinamento un po' lunghino e tosto. Non facile trovare gli attacchi delle vie, ci vuole un po' di esperienza",
+    "link": "https://larioclimb.paolo-sonja.net/bacheca/cmlo_grigne_medale.html",
+    "sectors": [
+      "Grigna meridionale"
+    ],
+    "visits": [
+      {
+        "date": "2026-08-09",
+        "with": "Japo",
+        "summary": "Via molto bella, soprattutto perchè arrivi in cima alla grigna dopo aver fatto l'ultimo pezzo della cresta segantini",
+        "routes": [
+          {
+            "name": "Via Zucchi",
+            "grade": "IV+",
+            "sector": "Grigna meridionale",
+            "comment": "probabilemente un passo di quinto protetto solo da un tuo friend"
+          }
+        ]
+      }
+    ]
   }
 ];

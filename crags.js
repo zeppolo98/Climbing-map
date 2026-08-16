@@ -271,7 +271,8 @@ const CRAGS = [
     "description": "Sentieri e avvicinamento segnalati molto male. Attacchi delle vie anche peggio. Pienissimo di vie chiodate a caso che si incrociano, leggere più relazioni attentamente.",
     "link": "https://www.gulliver.it/itinerari/zucco-dellangelone/",
     "sectors": [
-      "Terzo sperone"
+      "Terzo sperone",
+      "Quarto sperone"
     ],
     "visits": [
       {
@@ -283,6 +284,21 @@ const CRAGS = [
             "grade": "5b",
             "sector": "Terzo sperone",
             "comment": "Facili, ma molto carine. Prime due soste di ortofresco mancanti"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-01",
+        "with": "Ale, Sere, Luca",
+        "summary": "2 ore per trovare l'attacco, 6 ore per salire sbagliando strada ad ogni tiro. Calate sui tiri saliti bruttissime",
+        "avvicinamento": "Parcheggiare prima della funivia di Bobbio. imboccare il sentiero subito sotto, dietro la stessa. Seguire per il terzo/quarto sperone. Superati dei tratti con catena e cavo metallico, si arriva al canale che divide terzo e quarto sperone. Proseguire oltre a poi salire leggermente a destra, c'è una targhetta commemorativa e sopra ad esse l'attacco",
+        "discesa": "Dalla cima c'è un sentiero non segnalato benissimo, ci si perde facilmente ma si torna giù",
+        "routes": [
+          {
+            "name": "Anabiasi",
+            "grade": "VI-",
+            "sector": "Quarto sperone",
+            "comment": "Non si capisce dove andare, ci sono mille vie che si incrociano. La via in sè è carina, la rifarei per completarla"
           }
         ]
       }
@@ -648,6 +664,75 @@ const CRAGS = [
             "name": "Pernice bianca",
             "grade": "6a",
             "comment": "molto carina, con vari incastri in fessura"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "multipitch",
+    "name": "Costa dell'Anglone",
+    "lat": 45.97082,
+    "lng": 10.911493,
+    "parkingLat": 45.968008,
+    "parkingLng": 10.914529,
+    "rock": "Dolomia",
+    "exposition": [
+      "Est"
+    ],
+    "description": "Dal parcheggio 15 minuti e si attaccano le vie, molto comodo, vie lunghe e spittate molto belle.",
+    "link": "https://www.thecrag.com/it/arrampicata/italy/arco/area/579485835",
+    "visits": [
+      {
+        "date": "2026-04-25",
+        "with": "Luca, Japo, Andre, Fra, Fede",
+        "summary": "Dovevamo fare un'altra via più facile ma c'era gente e quindi io e Lu siamo andati su questa. Ottima scelta! Ci hanno superato dei bergamaschi del CAI, ma hanno scordato un rinvio che ci siamo guadagnati onestamente. Via piena di traversi sprotetti comunque.",
+        "avvicinamento": "Parcheggiare al campo sportivo, seguire la strada che diventa subito sentiero nel bosco e in pochi minuti si raggiungono gli attacchi delle vie",
+        "discesa": "Sentiero che riporta al campo sportivo con una ferratina finale",
+        "routes": [
+          {
+            "name": "Mercurio Serpeggianti",
+            "grade": "VI A0/V",
+            "comment": "Via bellissma, abbastanza lunga. Alternarsi con Luca che fa le placche top. Il tiro di sesto è uno strapiombo abbastanza duro, ma tutto azzerabile con cordoni"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Falesia Val di Lomasone",
+    "lat": 45.972855,
+    "lng": 10.86498,
+    "parkingLat": 45.970931,
+    "parkingLng": 10.858746,
+    "rock": "Dolomia",
+    "exposition": [
+      "Ovest"
+    ],
+    "description": "Bellissima falesia, in un locus amenus idilliaco. Gradi dai quinti ai settimi, vari settori",
+    "link": "https://www.thecrag.com/it/arrampicata/italy/val-lomasone",
+    "sectors": [
+      "Settore 2",
+      "Settore 4"
+    ],
+    "visits": [
+      {
+        "date": "2026-04-26",
+        "with": "Andre, Japo, Fra, Luca, Fede",
+        "summary": "settore 4 è il più nuovo ed è gradato un po' alto rispetto alla difficoltà effettiva. Gli altri settori hanno spit un po' vecchi, ma i tiri sono bellissimi. Il campanile arrivi proprio sopra a sto pilastro di roccia!",
+        "routes": [
+          {
+            "name": "Camapnile sud",
+            "grade": "6a",
+            "sector": "Settore 2",
+            "comment": "Chiodi arrugginiti, ma hanno tenuto, che caga!"
+          },
+          {
+            "name": "Via delle salamandre",
+            "grade": "6a",
+            "sector": "Settore 4",
+            "comment": "Carina, strapiombo deciso alla fine"
           }
         ]
       }

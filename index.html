@@ -283,6 +283,8 @@
   .visit-head button:hover, .route-row button:hover{ color:var(--marker); }
   .visit-row{ display:flex; gap:8px; }
   .visit-summary{ width:100%; resize:vertical; min-height:44px; font-size:13px; }
+  .visit-approach{ display:flex; gap:8px; }
+  .visit-approach textarea{ flex:1; resize:vertical; min-height:44px; font-size:13px; }
   .routes-list{ display:flex; flex-direction:column; gap:6px; }
   .route-row{ display:flex; gap:6px; align-items:center; }
   .route-row .route-name{ flex:1.2; }
@@ -339,6 +341,7 @@
     aside{ width:100%; flex:0 0 auto; max-height:38vh; border-right:none; border-bottom:1px solid var(--line); }
     #map{ min-height:300px; }
     .modal form{ grid-template-columns:1fr; }
+    .visit-approach{ flex-direction:column; }
   }
   @media (prefers-reduced-motion:reduce){
     *{ transition:none !important; animation:none !important; }
@@ -739,7 +742,7 @@ function openEditModal(crag){
   form.description.value = crag.description || '';
   form.link.value = crag.link || '';
   fillSectorsList(sectorsList, crag.sectors, onSectorsChanged);
-  fillVisitsList(visitsList, crag.visits, noop, () => collectSectors(sectorsList));
+  fillVisitsList(visitsList, crag.visits, noop, () => collectSectors(sectorsList), (crag.type || 'crag') === 'multipitch');
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
   syncTempMarker(crag.lat, crag.lng);
   overlay.classList.add('show');
@@ -762,7 +765,7 @@ map.on('click', e => {
   form.reset();
   resetModalToAddMode();
   fillSectorsList(sectorsList, [], onSectorsChanged);
-  resetVisits(visitsList, noop, () => collectSectors(sectorsList));
+  resetVisits(visitsList, noop, () => collectSectors(sectorsList), form.type.value === 'multipitch');
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
   syncTempMarker();
@@ -809,7 +812,7 @@ pickerNextBtn.addEventListener('click', () => {
   form.reset();
   resetModalToAddMode();
   fillSectorsList(sectorsList, [], onSectorsChanged);
-  resetVisits(visitsList, noop, () => collectSectors(sectorsList));
+  resetVisits(visitsList, noop, () => collectSectors(sectorsList), form.type.value === 'multipitch');
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
   overlay.classList.add('show');
@@ -936,7 +939,7 @@ function makeRouteRow(onChange, sectors){
   return row;
 }
 
-function makeVisitBlock(onChange, getSectors){
+function makeVisitBlock(onChange, getSectors, includeApproach){
   getSectors = getSectors || (() => []);
   const block = document.createElement('div');
   block.className = 'visit-block';
@@ -950,6 +953,11 @@ function makeVisitBlock(onChange, getSectors){
       <input type="text" class="visit-with" placeholder="With: Marco, Giulia" />
     </div>
     <textarea class="visit-summary" placeholder="Summary of the visit (optional)"></textarea>
+    ${includeApproach ? `
+    <div class="visit-approach">
+      <textarea class="visit-avvicinamento" placeholder="Avvicinamento — how to reach the start (optional)"></textarea>
+      <textarea class="visit-discesa" placeholder="Discesa — how to get down (optional)"></textarea>
+    </div>` : ''}
     <div class="routes-list"></div>
     <button type="button" class="btn-add-route">+ Add route</button>`;
   block.querySelector('.routes-list').appendChild(makeRouteRow(onChange, getSectors()));
@@ -978,6 +986,10 @@ function fillVisitBlock(block, visit, onChange, getSectors){
   block.querySelector('.visit-date').value = visit.date || '';
   block.querySelector('.visit-with').value = visit.with || '';
   block.querySelector('.visit-summary').value = visit.summary || '';
+  const avvicinamentoEl = block.querySelector('.visit-avvicinamento');
+  if(avvicinamentoEl) avvicinamentoEl.value = visit.avvicinamento || '';
+  const discesaEl = block.querySelector('.visit-discesa');
+  if(discesaEl) discesaEl.value = visit.discesa || '';
   const routesList = block.querySelector('.routes-list');
   routesList.innerHTML = '';
   const routes = (visit.routes && visit.routes.length) ? visit.routes : [{}];
@@ -991,24 +1003,29 @@ function fillVisitBlock(block, visit, onChange, getSectors){
   });
 }
 
-function fillVisitsList(container, visits, onChange, getSectors){
+function fillVisitsList(container, visits, onChange, getSectors, includeApproach){
   container.innerHTML = '';
   const list = (visits && visits.length) ? visits : [{}];
   list.forEach(v => {
-    const block = makeVisitBlock(onChange, getSectors);
+    const block = makeVisitBlock(onChange, getSectors, includeApproach);
     fillVisitBlock(block, v, onChange, getSectors);
     container.appendChild(block);
   });
   renumberVisits(container);
 }
 
-function resetVisits(container, onChange, getSectors){
-  fillVisitsList(container, [], onChange, getSectors);
+function resetVisits(container, onChange, getSectors, includeApproach){
+  fillVisitsList(container, [], onChange, getSectors, includeApproach);
 }
 
 document.getElementById('addVisitBtn').addEventListener('click', () => {
-  visitsList.appendChild(makeVisitBlock(noop, () => collectSectors(sectorsList)));
+  visitsList.appendChild(makeVisitBlock(noop, () => collectSectors(sectorsList), form.type.value === 'multipitch'));
   renumberVisits(visitsList);
+});
+
+form.type.addEventListener('change', () => {
+  const currentVisits = collectVisits(visitsList);
+  fillVisitsList(visitsList, currentVisits, noop, () => collectSectors(sectorsList), form.type.value === 'multipitch');
 });
 
 function collectVisits(container){
@@ -1016,6 +1033,8 @@ function collectVisits(container){
     const date = block.querySelector('.visit-date').value.trim();
     const withPeople = block.querySelector('.visit-with').value.trim();
     const summary = block.querySelector('.visit-summary').value.trim();
+    const avvicinamento = block.querySelector('.visit-avvicinamento')?.value.trim() || '';
+    const discesa = block.querySelector('.visit-discesa')?.value.trim() || '';
     const routes = [...block.querySelectorAll('.route-row')].map(row => {
       const name = row.querySelector('.route-name').value.trim();
       const grade = row.querySelector('.route-grade').value.trim();
@@ -1033,6 +1052,8 @@ function collectVisits(container){
     if(date) visit.date = date;
     if(withPeople) visit.with = withPeople;
     if(summary) visit.summary = summary;
+    if(avvicinamento) visit.avvicinamento = avvicinamento;
+    if(discesa) visit.discesa = discesa;
     if(routes.length) visit.routes = routes;
     return visit;
   }).filter(v => Object.keys(v).length > 0);
@@ -1103,7 +1124,7 @@ function openVisitModal(crag){
   document.getElementById('visitModalTitle').textContent = 'Add a visit';
   visitModalSub.textContent = `Add a visit to "${crag.name}". It'll be included next time you download crags.js.`
     + ((crag.sectors && crag.sectors.length) ? '' : ' No sectors defined yet — edit the place to add some.');
-  resetVisits(visitAddList, noop, () => (visitTargetCrag && visitTargetCrag.sectors) || []);
+  resetVisits(visitAddList, noop, () => (visitTargetCrag && visitTargetCrag.sectors) || [], crag.type === 'multipitch');
   addVisitBtn2.style.display = '';
   visitOverlay.classList.add('show');
 }
@@ -1115,7 +1136,7 @@ function openEditVisitModal(crag, index){
   visitModalSub.textContent = `Editing a visit to "${crag.name}".`;
   visitAddList.innerHTML = '';
   const getSectors = () => (visitTargetCrag && visitTargetCrag.sectors) || [];
-  const block = makeVisitBlock(noop, getSectors);
+  const block = makeVisitBlock(noop, getSectors, crag.type === 'multipitch');
   fillVisitBlock(block, crag.visits[index], noop, getSectors);
   visitAddList.appendChild(block);
   renumberVisits(visitAddList);
@@ -1128,7 +1149,7 @@ function closeVisitModal(){
   editingVisitIndex = null;
 }
 addVisitBtn2.addEventListener('click', () => {
-  visitAddList.appendChild(makeVisitBlock(noop, () => (visitTargetCrag && visitTargetCrag.sectors) || []));
+  visitAddList.appendChild(makeVisitBlock(noop, () => (visitTargetCrag && visitTargetCrag.sectors) || [], visitTargetCrag && visitTargetCrag.type === 'multipitch'));
   renumberVisits(visitAddList);
 });
 document.getElementById('saveVisitBtn').addEventListener('click', () => {
@@ -1157,11 +1178,15 @@ function renderVisitDetail(v){
   const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
   const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
   const summary = v.summary ? `<div class="description">${esc(v.summary)}</div>` : '';
+  const approach = [
+    v.avvicinamento && `<div class="description"><b>Avvicinamento:</b> ${esc(v.avvicinamento)}</div>`,
+    v.discesa && `<div class="description"><b>Discesa:</b> ${esc(v.discesa)}</div>`
+  ].filter(Boolean).join('');
   const routes = (v.routes||[]).map(r => {
     const bits = [r.sector && `<span class="mono">[${esc(r.sector)}]</span>`, r.name && `<b>${esc(r.name)}</b>`, r.grade && esc(r.grade), r.comment && esc(r.comment)].filter(Boolean);
     return `<li>${bits.join(' — ')}</li>`;
   }).join('');
-  visitDetail.innerHTML = meta + summary + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');
+  visitDetail.innerHTML = meta + summary + approach + (routes ? `<ul>${routes}</ul>` : '<div class="empty">No routes logged for this visit.</div>');
 }
 
 function openVisitsView(crag, targetIndex){

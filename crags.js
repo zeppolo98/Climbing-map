@@ -555,6 +555,21 @@ const CRAGS = [
             "comment": "probabilemente un passo di quinto protetto solo da un tuo friend"
           }
         ]
+      },
+      {
+        "date": "2026-08-15",
+        "with": "Fra, Luca, Nico",
+        "summary": "Volevamo concatenare i tre Magnaghi, ma alla fine abbiamo fatto solo il meridionale. nella calata abbiamo visto il 'traversino' per spostarsi sul centrale, è da cagarsi addosso",
+        "avvicinamento": "continuare sulla strada asfaltata che passa davanti al rifugio dei resinelli, dopo poco diventa sterrata. Parcheggiare e proseguire a piedi per il sentiero, subito un cartello per il canalone Porta. Inconfondibile, risalirlo fino alla fine. Si vede la piattaforma per gli elicotteri. Da lì proseguire verso il magnaghi meridionale, si vede un gabbiotto per le barelle. Risalire le non banali roccette di III e infilarsi in una spaccatura che porta all'attacco del sigaro e delle vie sul Magnaghi meridionale. La via parte lì in fondo, si può prendere un fittone oppure scendere di più e passare dalla sosta del primo tiro del sigaro o del canalino albertini",
+        "discesa": "dal masso con scritto lemonsoda in vetta ci si può calare o disarrampicare delle facili roccette per 15 metri fino ad un anello di calata all'altezza dell'intaglio tra i due magnaghi. Si può traversare all'altro magnaghi o continuare la calata sulla normale del magnaghi meridionale",
+        "routes": [
+          {
+            "name": "Spigolo Dorn",
+            "grade": "IV",
+            "sector": "Grigna meridionale",
+            "comment": "via molto facile, poco da integrare, si ricongiunge agli ultimi tiri del canalino albertini"
+          }
+        ]
       }
     ]
   }

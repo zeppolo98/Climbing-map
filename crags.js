@@ -188,6 +188,18 @@ const CRAGS = [
             "comment": "Allungo e via"
           }
         ]
+      },
+      {
+        "date": "2026-05-09",
+        "with": "Gipi, Ire",
+        "summary": "Melloblocco, prima volta nella vita. Fighissimo, ambiente stupendo con un sacco di persone che scalano, mai troppo affollato",
+        "routes": [
+          {
+            "name": "Masso dei veronesi",
+            "grade": "6a",
+            "sector": "Proprietà privata"
+          }
+        ]
       }
     ]
   },
@@ -568,6 +580,74 @@ const CRAGS = [
             "grade": "IV",
             "sector": "Grigna meridionale",
             "comment": "via molto facile, poco da integrare, si ricongiunge agli ultimi tiri del canalino albertini"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "multipitch",
+    "name": "Placche di Oriana",
+    "lat": 45.623589,
+    "lng": 7.701536,
+    "parkingLat": 45.61926,
+    "parkingLng": 7.70877,
+    "rock": "Gneiss",
+    "exposition": [
+      "Sud"
+    ],
+    "description": "Bellissima roccia, tiene tantissmo, principalmente placca come dice il nome. Si possono tranquillamente provare vie più dure considerando l'ottima spittatura",
+    "link": "https://www.thecrag.com/it/arrampicata/italy/placche-di-oriana",
+    "sectors": [
+      "Settore destro"
+    ],
+    "visits": [
+      {
+        "date": "2026-05-16",
+        "with": "Andre, Luca, Fra",
+        "summary": "Cercavamo qualcosa di sportivo e non troppo lungo. Piacevolissima via, se ne possono fare altre nello stesso giorno, dalla cima all'attacco sono 20 minuti a piedi",
+        "avvicinamento": "Dal parcheggio a Courtil si segue la strada asfaltata, dopo un tornante c'è un sentiero che sale e porta alla base della parete del settore destro con tutte le vie segnate da una placca metallica col nome",
+        "discesa": "Comodissimo sentiero che riporta all'attacco",
+        "routes": [
+          {
+            "name": "Rue de la Gueriso",
+            "grade": "5c+",
+            "sector": "Settore destro",
+            "comment": "Via sportiva spittata corta sui pezzi dura e lunga su quelli facili, molto bella"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "crag",
+    "name": "Falesia Grotta",
+    "lat": 45.6223,
+    "lng": 7.705,
+    "parkingLat": 45.61926,
+    "parkingLng": 7.70877,
+    "rock": "Gneiss",
+    "exposition": [
+      "Nord",
+      "Sud"
+    ],
+    "description": "Falesia sotto le placche di Oriana, molto carina anche per finire la giornata dopo una via",
+    "link": "https://www.thecrag.com/it/arrampicata/italy/placche-di-oriana/area/9435180468",
+    "visits": [
+      {
+        "date": "2026-05-16",
+        "with": "Andre, Luca, Fra",
+        "summary": "Falesia tranquilla dopo la via, ci siamo fatti sicura con 2 doppie e il secchiello D:",
+        "routes": [
+          {
+            "name": "Aquila reale",
+            "grade": "6b",
+            "comment": "Un passaggio di fiducia in spalmo fa stra paura"
+          },
+          {
+            "name": "Pernice bianca",
+            "grade": "6a",
+            "comment": "molto carina, con vari incastri in fessura"
           }
         ]
       }

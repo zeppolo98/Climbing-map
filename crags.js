@@ -575,6 +575,8 @@ const CRAGS = [
         "date": "2026-08-09",
         "with": "Japo",
         "summary": "Via molto bella, soprattutto perchè arrivi in cima alla grigna dopo aver fatto l'ultimo pezzo della cresta segantini",
+        "avvicinamento": "Dai piani dei resinelli, salire verso il rifugio porta per la strada asfaltata superando le sbarre. prendere il sentiero nel bosco che inizia ad una curva verso destra. Al bivio con cartelli seguire a destra (Direttissima) e farsi tutta la costa fino alla ferrata (scala di metallo). Proseguire ancora oltrepassando il Fungo tenendolo sulla sinistra. Si arriva al canalone Angelina, risalirlo (non banale). prima di arrivare verso la cresta stare sulla destra per il sentiero Cecilia. Dopo un altro tratto con catena si aggira uno sperone e risalendo un po' c'è l'attacco della via con scritto via Zucchi",
+        "discesa": "Dalla cima della grigna comodo sentiero che riporta ai piani dei resinelli",
         "routes": [
           {
             "name": "Via Zucchi",

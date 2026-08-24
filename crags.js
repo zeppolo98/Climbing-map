@@ -739,5 +739,35 @@ const CRAGS = [
         ]
       }
     ]
+  },
+  {
+    "type": "multipitch",
+    "name": "Santa Massenza",
+    "lat": 46.068277,
+    "lng": 10.978479,
+    "parkingLat": 46.065547,
+    "parkingLng": 10.980358,
+    "rock": "Dolomia",
+    "exposition": [
+      "Est"
+    ],
+    "description": "Tipiche vie dolomitiche, un po' da integrare. Aperte di recente.",
+    "link": "https://www.inmontagna.blog/via-picola-nizza-de-trent-santa-massenza-trad-didattico/",
+    "visits": [
+      {
+        "date": "2026-08-23",
+        "with": "Japo, Luca",
+        "summary": "Luca ha fatto da fotografo e intrattenitore. Libro di vetta simpatico. I tizi che l'hanno aperta sono del luogo probabilmente e hanno aperto varie vie qui",
+        "avvicinamento": "Dal parcheggio proseguire 20 metri sulla strada e prendere il sentiero che sale sulla sinistra. Seguirlo e fidarsi della relazione. Bivio a destra, superare spigolo nascosto, continuare per dei ripidi zig zag e si arriva alla via che attacca dove c'è la targhetta col nome",
+        "discesa": "Seguire il sentiero che va a destra dalla cima e fidarsi della relazione. Continua in mezza costa a sinistra, supera traliccio, arte di ferrata e poi giù a destra",
+        "routes": [
+          {
+            "name": "Piccola Nizza di Trent",
+            "grade": "V",
+            "comment": "Via carina, un po' da integrare ma piena di chidoi sul tiro più duro, comunque un diedro interessante"
+          }
+        ]
+      }
+    ]
   }
 ];

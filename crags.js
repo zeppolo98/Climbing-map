@@ -22,7 +22,10 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-07-11",
-        "with": "Irene",
+        "with": [
+          "Vale",
+          "Ire"
+        ],
         "routes": [
           {
             "name": "Su alto",
@@ -52,7 +55,10 @@ const CRAGS = [
       },
       {
         "date": "2026-06-20",
-        "with": "Nico",
+        "with": [
+          "Vale",
+          "Nico"
+        ],
         "routes": [
           {
             "name": "Su alto",
@@ -70,7 +76,13 @@ const CRAGS = [
       },
       {
         "date": "2026-05-23",
-        "with": "Chiara, Fra, Luca, Andre",
+        "with": [
+          "Vale",
+          "Chiara",
+          "Fra",
+          "Luca",
+          "Andre"
+        ],
         "routes": [
           {
             "name": "Busazza",
@@ -114,7 +126,10 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-12",
-        "with": "SaraG",
+        "with": [
+          "Vale",
+          "SaraG"
+        ],
         "summary": "Unico settore di Civate che merita, tiri un po' più duri ma molto belli e lunghi e molto meno unti",
         "routes": [
           {
@@ -133,7 +148,12 @@ const CRAGS = [
       },
       {
         "date": "2026-05-20",
-        "with": "Luca, Fra, Chiara",
+        "with": [
+          "Vale",
+          "Luca",
+          "Fra",
+          "Chiara"
+        ],
         "summary": "Completato il settore Amazzonia e Palestra vecchia, i 6a sono banali, magari un passaggio duro. Diventano più duri se vai su dritto seguendo gli spit, spostandosi un po' sono facili",
         "routes": [
           {
@@ -166,7 +186,12 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-07-05",
-        "with": "Ire, Gipi, SaraS, AndreC",
+        "with": [
+          "Vale",
+          "Ire",
+          "Gipi",
+          "SaraS"
+        ],
         "summary": "Compleanno di Ire, scalato con dei suoi amici stra forti. Primo 6c blocco!",
         "routes": [
           {
@@ -191,7 +216,11 @@ const CRAGS = [
       },
       {
         "date": "2026-05-09",
-        "with": "Gipi, Ire",
+        "with": [
+          "Vale",
+          "Gipi",
+          "Ire"
+        ],
         "summary": "Melloblocco, prima volta nella vita. Fighissimo, ambiente stupendo con un sacco di persone che scalano, mai troppo affollato",
         "routes": [
           {
@@ -219,7 +248,13 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-27",
-        "with": "Japo, SaraG, Ire, Luca",
+        "with": [
+          "Vale",
+          "Japo",
+          "SaraG",
+          "Ire",
+          "Luca"
+        ],
         "routes": [
           {
             "name": "Via Harlem",
@@ -246,7 +281,12 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-28",
-        "with": "Japo, Ire, Luca",
+        "with": [
+          "Vale",
+          "Japo",
+          "Ire",
+          "Luca"
+        ],
         "routes": [
           {
             "name": "Deverino Valley",
@@ -277,7 +317,13 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-13",
-        "with": "Japo, Andre, SaraG, Fede",
+        "with": [
+          "Vale",
+          "Japo",
+          "Andre",
+          "SaraG",
+          "Fede"
+        ],
         "routes": [
           {
             "name": "Ortofrsco + Schiavi della pietra",
@@ -289,7 +335,12 @@ const CRAGS = [
       },
       {
         "date": "2026-05-01",
-        "with": "Ale, Sere, Luca",
+        "with": [
+          "Vale",
+          "Ale",
+          "Sere",
+          "Luca"
+        ],
         "summary": "2 ore per trovare l'attacco, 6 ore per salire sbagliando strada ad ogni tiro. Calate sui tiri saliti bruttissime",
         "avvicinamento": "Parcheggiare prima della funivia di Bobbio. imboccare il sentiero subito sotto, dietro la stessa. Seguire per il terzo/quarto sperone. Superati dei tratti con catena e cavo metallico, si arriva al canale che divide terzo e quarto sperone. Proseguire oltre a poi salire leggermente a destra, c'è una targhetta commemorativa e sopra ad esse l'attacco",
         "discesa": "Dalla cima c'è un sentiero non segnalato benissimo, ci si perde facilmente ma si torna giù",
@@ -320,7 +371,13 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-21",
-        "with": "Japo, Andre, SaraG, Ire",
+        "with": [
+          "Vale",
+          "Japo",
+          "Andre",
+          "SaraG",
+          "Ire"
+        ],
         "routes": [
           {
             "name": "Il ragno",
@@ -353,7 +410,13 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-06",
-        "with": "Luca, Fra, Japo, SaraG",
+        "with": [
+          "Vale",
+          "Luca",
+          "Fra",
+          "Japo",
+          "SaraG"
+        ],
         "routes": [
           {
             "name": "Mal di dita",
@@ -400,7 +463,11 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-06-01",
-        "with": "Ire, SaraG",
+        "with": [
+          "Vale",
+          "Ire",
+          "SaraG"
+        ],
         "routes": [
           {
             "name": "Ecrins total",
@@ -411,7 +478,15 @@ const CRAGS = [
       },
       {
         "date": "2026-06-02",
-        "with": "Fra, Luca, Ire, SaraG, Andre, Isa",
+        "with": [
+          "Vale",
+          "Fra",
+          "Luca",
+          "Ire",
+          "SaraG",
+          "Andre",
+          "Isa"
+        ],
         "routes": [
           {
             "grade": "5c",
@@ -444,7 +519,13 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-07-25",
-        "with": "Ire, Nico, Andre, Isa",
+        "with": [
+          "Vale",
+          "Ire",
+          "Nico",
+          "Andre",
+          "Isa"
+        ],
         "routes": [
           {
             "name": "Prendi il fossile",
@@ -491,7 +572,17 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-07-30",
-        "with": "Ire, Fra, Nico, Andre, Fede, Chiara, AndreB, BeaBassi",
+        "with": [
+          "Vale",
+          "Ire",
+          "Fra",
+          "Nico",
+          "Andre",
+          "Fede",
+          "Chiara",
+          "AndreB",
+          "BeaBassi"
+        ],
         "summary": "Fatto il traverso fino all'inizio della parte bianca. Caduto una volta perchè si è rotto un piede. Eravamo tantissimi e poi grigliata sulla spiaggia",
         "routes": [
           {
@@ -524,7 +615,12 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-05-24",
-        "with": "SaraG, Ire, Nico",
+        "with": [
+          "Vale",
+          "SaraG",
+          "Ire",
+          "Nico"
+        ],
         "summary": "Secondo giorno di fila di falesia. ci sono dei bervi multipitch molto belli alla placca condor",
         "routes": [
           {
@@ -573,7 +669,10 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-08-09",
-        "with": "Japo",
+        "with": [
+          "Vale",
+          "Japo"
+        ],
         "summary": "Via molto bella, soprattutto perchè arrivi in cima alla grigna dopo aver fatto l'ultimo pezzo della cresta segantini",
         "avvicinamento": "Dai piani dei resinelli, salire verso il rifugio porta per la strada asfaltata superando le sbarre. prendere il sentiero nel bosco che inizia ad una curva verso destra. Al bivio con cartelli seguire a destra (Direttissima) e farsi tutta la costa fino alla ferrata (scala di metallo). Proseguire ancora oltrepassando il Fungo tenendolo sulla sinistra. Si arriva al canalone Angelina, risalirlo (non banale). prima di arrivare verso la cresta stare sulla destra per il sentiero Cecilia. Dopo un altro tratto con catena si aggira uno sperone e risalendo un po' c'è l'attacco della via con scritto via Zucchi",
         "discesa": "Dalla cima della grigna comodo sentiero che riporta ai piani dei resinelli",
@@ -588,7 +687,12 @@ const CRAGS = [
       },
       {
         "date": "2026-08-15",
-        "with": "Fra, Luca, Nico",
+        "with": [
+          "Vale",
+          "Fra",
+          "Luca",
+          "Nico"
+        ],
         "summary": "Volevamo concatenare i tre Magnaghi, ma alla fine abbiamo fatto solo il meridionale. nella calata abbiamo visto il 'traversino' per spostarsi sul centrale, è da cagarsi addosso",
         "avvicinamento": "continuare sulla strada asfaltata che passa davanti al rifugio dei resinelli, dopo poco diventa sterrata. Parcheggiare e proseguire a piedi per il sentiero, subito un cartello per il canalone Porta. Inconfondibile, risalirlo fino alla fine. Si vede la piattaforma per gli elicotteri. Da lì proseguire verso il magnaghi meridionale, si vede un gabbiotto per le barelle. Risalire le non banali roccette di III e infilarsi in una spaccatura che porta all'attacco del sigaro e delle vie sul Magnaghi meridionale. La via parte lì in fondo, si può prendere un fittone oppure scendere di più e passare dalla sosta del primo tiro del sigaro o del canalino albertini",
         "discesa": "dal masso con scritto lemonsoda in vetta ci si può calare o disarrampicare delle facili roccette per 15 metri fino ad un anello di calata all'altezza dell'intaglio tra i due magnaghi. Si può traversare all'altro magnaghi o continuare la calata sulla normale del magnaghi meridionale",
@@ -622,7 +726,12 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-05-16",
-        "with": "Andre, Luca, Fra",
+        "with": [
+          "Vale",
+          "Andre",
+          "Luca",
+          "Fra"
+        ],
         "summary": "Cercavamo qualcosa di sportivo e non troppo lungo. Piacevolissima via, se ne possono fare altre nello stesso giorno, dalla cima all'attacco sono 20 minuti a piedi",
         "avvicinamento": "Dal parcheggio a Courtil si segue la strada asfaltata, dopo un tornante c'è un sentiero che sale e porta alla base della parete del settore destro con tutte le vie segnate da una placca metallica col nome",
         "discesa": "Comodissimo sentiero che riporta all'attacco",
@@ -654,7 +763,12 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-05-16",
-        "with": "Andre, Luca, Fra",
+        "with": [
+          "Vale",
+          "Andre",
+          "Luca",
+          "Fra"
+        ],
         "summary": "Falesia tranquilla dopo la via, ci siamo fatti sicura con 2 doppie e il secchiello D:",
         "routes": [
           {
@@ -687,7 +801,14 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-04-25",
-        "with": "Luca, Japo, Andre, Fra, Fede",
+        "with": [
+          "Vale",
+          "Luca",
+          "Japo",
+          "Andre",
+          "Fra",
+          "Fede"
+        ],
         "summary": "Dovevamo fare un'altra via più facile ma c'era gente e quindi io e Lu siamo andati su questa. Ottima scelta! Ci hanno superato dei bergamaschi del CAI, ma hanno scordato un rinvio che ci siamo guadagnati onestamente. Via piena di traversi sprotetti comunque.",
         "avvicinamento": "Parcheggiare al campo sportivo, seguire la strada che diventa subito sentiero nel bosco e in pochi minuti si raggiungono gli attacchi delle vie",
         "discesa": "Sentiero che riporta al campo sportivo con una ferratina finale",
@@ -721,7 +842,14 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-04-26",
-        "with": "Andre, Japo, Fra, Luca, Fede",
+        "with": [
+          "Vale",
+          "Andre",
+          "Japo",
+          "Fra",
+          "Luca",
+          "Fede"
+        ],
         "summary": "settore 4 è il più nuovo ed è gradato un po' alto rispetto alla difficoltà effettiva. Gli altri settori hanno spit un po' vecchi, ma i tiri sono bellissimi. Il campanile arrivi proprio sopra a sto pilastro di roccia!",
         "routes": [
           {
@@ -756,7 +884,11 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-08-23",
-        "with": "Japo, Luca",
+        "with": [
+          "Vale",
+          "Japo",
+          "Luca"
+        ],
         "summary": "Luca ha fatto da fotografo e intrattenitore. Libro di vetta simpatico. I tizi che l'hanno aperta sono del luogo probabilmente e hanno aperto varie vie qui",
         "avvicinamento": "Dal parcheggio proseguire 20 metri sulla strada e prendere il sentiero che sale sulla sinistra. Seguirlo e fidarsi della relazione. Bivio a destra, superare spigolo nascosto, continuare per dei ripidi zig zag e si arriva alla via che attacca dove c'è la targhetta col nome",
         "discesa": "Seguire il sentiero che va a destra dalla cima e fidarsi della relazione. Continua in mezza costa a sinistra, supera traliccio, arte di ferrata e poi giù a destra",
@@ -789,7 +921,12 @@ const CRAGS = [
     "visits": [
       {
         "date": "2026-08-26",
-        "with": "Japo, Luca, Andre",
+        "with": [
+          "Vale",
+          "Japo",
+          "Luca",
+          "Andre"
+        ],
         "summary": "CHE FIGATA E CHE CAGA, prima via classica. Una bellissima giornata di 19 ore di attività fisica",
         "avvicinamento": "Dormito al rifugio Tosa-Pedrotti, si raggiunge in 3 ore e 15 minuti dal parcheggio di Vallesinella. Dal rifugio si torna alla bocchetta di Brenta e si attacca la ferrata delle bocchette. Si raggiunge la bocchetta del campanile basso è l'attacco e 5 metri sotto a sinistra",
         "discesa": "8 doppie dalla cima che seguono circa la normale. Occhio che si incastra facile al prima e a noi anche l'ultima",
@@ -803,4 +940,26 @@ const CRAGS = [
       }
     ]
   }
+];
+
+/* People you've climbed with. Adding someone new in the "Add a visit" form
+   appends them here too — remember to re-download crags.js afterwards. */
+const PEOPLE = [
+  "Vale",
+  "Ale",
+  "Andre",
+  "AndreB",
+  "BeaBassi",
+  "Chiara",
+  "Fede",
+  "Fra",
+  "Gipi",
+  "Ire",
+  "Isa",
+  "Japo",
+  "Luca",
+  "Nico",
+  "SaraG",
+  "SaraS",
+  "Sere"
 ];

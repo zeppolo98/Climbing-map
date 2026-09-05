@@ -117,6 +117,13 @@
   }
   .list-mode-tab.active{ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
   .list-mode-tab:hover:not(.active){ background:var(--limestone); }
+  .person-filter-row{ padding:0 16px 10px; }
+  .person-filter-row select{
+    width:100%; font-family:"Archivo",sans-serif; font-size:13px;
+    padding:9px 12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--chalk); color:var(--ink);
+  }
+  .person-filter-row select:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
   .list-head{
     padding:0 18px 8px; font-size:10.5px; letter-spacing:.16em;
     text-transform:uppercase; color:var(--sage);
@@ -282,6 +289,24 @@
   }
   .visit-head button:hover, .route-row button:hover{ color:var(--marker); }
   .visit-row{ display:flex; gap:8px; }
+  .visit-with-group{ display:flex; flex-direction:column; gap:8px; }
+  .person-chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
+  .person-chip{
+    display:flex; align-items:center; gap:6px;
+    font-family:"Archivo",sans-serif; font-size:12.5px; cursor:pointer;
+    padding:6px 11px; border-radius:999px; border:1px solid var(--line);
+    background:#fff; color:var(--ink); user-select:none;
+  }
+  .person-chip input{ margin:0; accent-color:var(--pine); }
+  .person-chip:has(input:checked){ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
+  .add-person-row{ display:flex; gap:6px; }
+  .add-person-row input{ flex:1; }
+  .add-person-row button{
+    font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer;
+    border:1px dashed var(--line); background:transparent; color:var(--pine-2);
+    font-family:"Archivo",sans-serif; white-space:nowrap;
+  }
+  .add-person-row button:hover{ background:var(--limestone); }
   .visit-summary{ width:100%; resize:vertical; min-height:44px; font-size:13px; }
   .visit-approach{ display:flex; gap:8px; }
   .visit-approach textarea{ flex:1; resize:vertical; min-height:44px; font-size:13px; }
@@ -383,6 +408,11 @@
     <div class="list-mode-tabs" id="listModeTabs">
       <button type="button" class="list-mode-tab active" data-mode="places">Places</button>
       <button type="button" class="list-mode-tab" data-mode="visits">Visits</button>
+    </div>
+    <div class="person-filter-row" id="personFilterRow" style="display:none">
+      <select id="personFilter" aria-label="Filter visits by person">
+        <option value="">Everyone</option>
+      </select>
     </div>
     <div class="list-head"><span id="list-head-label">Logbook</span><span id="list-count" class="mono">0</span></div>
     <div class="list" id="list"></div>
@@ -551,7 +581,9 @@ function expositionLabel(exposition){
 
 function downloadCragsFile(){
   const header = `/* =====================================================================\n   YOUR CRAGS — edit this list. Each entry is one place you've climbed.\n   Only name + lat + lng are required; the rest are optional flavour.\n   ===================================================================== */\n`;
-  const content = header + `const CRAGS = ${JSON.stringify(CRAGS, null, 2)};\n`;
+  const peopleHeader = `\n/* People you've climbed with. Adding someone new in the "Add a visit" form\n   appends them here too — remember to re-download crags.js afterwards. */\n`;
+  const content = header + `const CRAGS = ${JSON.stringify(CRAGS, null, 2)};\n`
+    + peopleHeader + `const PEOPLE = ${JSON.stringify(PEOPLE, null, 2)};\n`;
   const blob = new Blob([content], { type: 'text/javascript' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -631,10 +663,12 @@ function renderVisitsList(f){
   CRAGS.forEach(c => (c.visits||[]).forEach((v, i) => allVisits.push({ crag:c, visit:v, index:i })));
   allVisits.sort((a,b) => (b.visit.date||'').localeCompare(a.visit.date||''));
 
+  const personFilter = document.getElementById('personFilter').value;
   const shown = allVisits.filter(({crag:c, visit:v}) => {
+    if(personFilter && !(v.with||[]).includes(personFilter)) return false;
     if(!f) return true;
     const routeText = (v.routes||[]).map(r => [r.name,r.grade,r.sector,r.comment].filter(Boolean).join(' ')).join(' ');
-    const haystack = [c.name, v.with, v.summary, routeText].filter(Boolean).join(' ').toLowerCase();
+    const haystack = [c.name, (v.with||[]).join(' '), v.summary, routeText].filter(Boolean).join(' ').toLowerCase();
     return haystack.includes(f);
   });
 
@@ -646,7 +680,7 @@ function renderVisitsList(f){
     card.innerHTML = `<h3>${esc(c.name)}</h3>
       <div class="meta">
         ${v.date?`<span class="tagpill mono">${esc(v.date)}</span>`:''}
-        ${v.with?`<span class="tagpill">with ${esc(v.with)}</span>`:''}
+        ${v.with&&v.with.length?`<span class="tagpill">with ${esc(v.with.join(', '))}</span>`:''}
         ${routeGrades.length?`<span class="tagpill">${routeGrades.length} route${routeGrades.length>1?'s':''}</span>`:''}
         ${visitSectors.length?`<span class="tagpill">${esc(visitSectors.join(', '))}</span>`:''}
       </div>
@@ -675,9 +709,20 @@ document.querySelectorAll('.list-mode-tab').forEach(tab => {
     searchInput.placeholder = listMode==='visits'
       ? 'Search by place, person, or route…' : 'Search by name or rock type…';
     searchInput.setAttribute('aria-label', listMode==='visits' ? 'Search visits' : 'Search places');
+    document.getElementById('personFilterRow').style.display = listMode==='visits' ? '' : 'none';
     render(document.getElementById('search').value);
   });
 });
+
+function populatePersonFilterOptions(){
+  const select = document.getElementById('personFilter');
+  const current = select.value;
+  select.innerHTML = '<option value="">Everyone</option>' +
+    PEOPLE.map(name => `<option value="${esc(name)}">${esc(name)}</option>`).join('');
+  if(PEOPLE.includes(current)) select.value = current;
+}
+populatePersonFilterOptions();
+document.getElementById('personFilter').addEventListener('change', () => render(document.getElementById('search').value));
 
 function updateStats(){
   document.getElementById('stat-total').textContent = CRAGS.length;
@@ -950,7 +995,13 @@ function makeVisitBlock(onChange, getSectors, includeApproach){
     </div>
     <div class="visit-row">
       <input type="date" class="visit-date" />
-      <input type="text" class="visit-with" placeholder="With: Marco, Giulia" />
+    </div>
+    <div class="visit-with-group">
+      <div class="person-chip-list"></div>
+      <div class="add-person-row">
+        <input type="text" class="add-person-input" placeholder="+ add someone new" />
+        <button type="button" class="add-person-btn">Add</button>
+      </div>
     </div>
     <textarea class="visit-summary" placeholder="Summary of the visit (optional)"></textarea>
     ${includeApproach ? `
@@ -960,6 +1011,13 @@ function makeVisitBlock(onChange, getSectors, includeApproach){
     </div>` : ''}
     <div class="routes-list"></div>
     <button type="button" class="btn-add-route">+ Add route</button>`;
+  renderPersonChips(block, []);
+  block.querySelector('.person-chip-list').addEventListener('change', onChange);
+  const addInput = block.querySelector('.add-person-input');
+  const addBtn = block.querySelector('.add-person-btn');
+  const doAddPerson = () => { addNewPerson(addInput.value, block); addInput.value = ''; onChange(); };
+  addBtn.addEventListener('click', doAddPerson);
+  addInput.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); doAddPerson(); } });
   block.querySelector('.routes-list').appendChild(makeRouteRow(onChange, getSectors()));
   block.querySelector('.btn-add-route').addEventListener('click', () => {
     block.querySelector('.routes-list').appendChild(makeRouteRow(onChange, getSectors()));
@@ -974,6 +1032,27 @@ function makeVisitBlock(onChange, getSectors, includeApproach){
   return block;
 }
 
+function personChipMarkup(name, checked){
+  return `<label class="person-chip"><input type="checkbox" value="${esc(name)}" ${checked?'checked':''}/>${esc(name)}</label>`;
+}
+function renderPersonChips(block, selected){
+  block.querySelector('.person-chip-list').innerHTML = PEOPLE.map(name => personChipMarkup(name, selected.includes(name))).join('');
+}
+function getSelectedPeople(block){
+  return [...block.querySelectorAll('.person-chip input:checked')].map(cb => cb.value);
+}
+function addNewPerson(rawName, currentBlock){
+  const name = rawName.trim();
+  if(name && !PEOPLE.includes(name)) PEOPLE.push(name);
+  document.querySelectorAll('.visit-with-group').forEach(group => {
+    const block = group.closest('.visit-block');
+    const selected = getSelectedPeople(block);
+    if(block === currentBlock && name && !selected.includes(name)) selected.push(name);
+    renderPersonChips(block, selected);
+  });
+  populatePersonFilterOptions();
+}
+
 function renumberVisits(container){
   [...container.querySelectorAll('.visit-block')].forEach((b, i) => {
     b.querySelector('.visit-num').textContent = `Visit ${i+1}`;
@@ -984,7 +1063,7 @@ function fillVisitBlock(block, visit, onChange, getSectors){
   getSectors = getSectors || (() => []);
   const sectors = getSectors();
   block.querySelector('.visit-date').value = visit.date || '';
-  block.querySelector('.visit-with').value = visit.with || '';
+  renderPersonChips(block, visit.with || []);
   block.querySelector('.visit-summary').value = visit.summary || '';
   const avvicinamentoEl = block.querySelector('.visit-avvicinamento');
   if(avvicinamentoEl) avvicinamentoEl.value = visit.avvicinamento || '';
@@ -1031,7 +1110,7 @@ form.type.addEventListener('change', () => {
 function collectVisits(container){
   return [...container.querySelectorAll('.visit-block')].map(block => {
     const date = block.querySelector('.visit-date').value.trim();
-    const withPeople = block.querySelector('.visit-with').value.trim();
+    const withPeople = getSelectedPeople(block);
     const summary = block.querySelector('.visit-summary').value.trim();
     const avvicinamento = block.querySelector('.visit-avvicinamento')?.value.trim() || '';
     const discesa = block.querySelector('.visit-discesa')?.value.trim() || '';
@@ -1050,7 +1129,7 @@ function collectVisits(container){
 
     const visit = {};
     if(date) visit.date = date;
-    if(withPeople) visit.with = withPeople;
+    if(withPeople.length) visit.with = withPeople;
     if(summary) visit.summary = summary;
     if(avvicinamento) visit.avvicinamento = avvicinamento;
     if(discesa) visit.discesa = discesa;
@@ -1175,7 +1254,7 @@ const visitDetailActions = document.querySelector('.visit-detail-actions');
 let visitsViewCrag = null, visitsViewIndex = null;
 
 function renderVisitDetail(v){
-  const metaParts = [v.date, v.with && `with ${v.with}`].filter(Boolean);
+  const metaParts = [v.date, v.with && v.with.length && `with ${v.with.join(', ')}`].filter(Boolean);
   const meta = metaParts.length ? `<div class="visit-meta">${esc(metaParts.join(' · '))}</div>` : '';
   const summary = v.summary ? `<div class="description">${esc(v.summary)}</div>` : '';
   const approach = [

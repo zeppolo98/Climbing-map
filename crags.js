@@ -769,5 +769,38 @@ const CRAGS = [
         ]
       }
     ]
+  },
+  {
+    "type": "multipitch",
+    "name": "Campanile Basso",
+    "lat": 46.161406,
+    "lng": 10.892466,
+    "parkingLat": 46.206102,
+    "parkingLng": 10.850984,
+    "rock": "Dolomia",
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
+    "description": "Tipica scalata dolomitica, l'esposizione dipende dalla via che scegli, la normale ce le ha tutte",
+    "link": "https://www.sassbaloss.com/pagine/uscite/campanilebasso/campanilebasso.htm",
+    "visits": [
+      {
+        "date": "2026-08-26",
+        "with": "Japo, Luca, Andre",
+        "summary": "CHE FIGATA E CHE CAGA, prima via classica. Una bellissima giornata di 19 ore di attività fisica",
+        "avvicinamento": "Dormito al rifugio Tosa-Pedrotti, si raggiunge in 3 ore e 15 minuti dal parcheggio di Vallesinella. Dal rifugio si torna alla bocchetta di Brenta e si attacca la ferrata delle bocchette. Si raggiunge la bocchetta del campanile basso è l'attacco e 5 metri sotto a sinistra",
+        "discesa": "8 doppie dalla cima che seguono circa la normale. Occhio che si incastra facile al prima e a noi anche l'ultima",
+        "routes": [
+          {
+            "name": "Via Normale",
+            "grade": "V",
+            "comment": "STUPENDA. Abbiamo sbagliato strada un po' di vote sui tiri, ma si fa. Difficoltà tecnica bassa ma è tutto da integrare tranne la Poli e l'ultimo tiro se segui i chiodi sul quinto"
+          }
+        ]
+      }
+    ]
   }
 ];

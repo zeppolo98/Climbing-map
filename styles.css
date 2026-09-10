@@ -135,6 +135,7 @@ aside{
 .pin{ filter:drop-shadow(0 3px 3px rgba(22,33,30,.35)); }
 .pin svg{ display:block; }
 .pin.temp svg path{ fill:var(--pine); }
+.pin.route svg path{ fill:var(--sage); }
 
 /* Popup */
 .leaflet-popup-content-wrapper{ border-radius:14px; padding:2px; box-shadow:var(--shadow); }
@@ -329,6 +330,22 @@ aside{
   border:1px dashed var(--line); background:transparent; color:var(--pine-2); cursor:pointer;
 }
 .btn-add-sector:hover{ background:var(--limestone); }
+.mp-routes-list{ display:flex; flex-direction:column; gap:6px; }
+.mp-route-row{ display:flex; gap:6px; align-items:center; }
+.mp-route-row .mp-route-name{
+  flex:1 1 auto; min-width:0; font-family:"Archivo",sans-serif; font-size:13px; padding:7px 9px;
+  border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
+}
+.mp-route-row .mp-route-coords{
+  flex:0 1 200px; min-width:0; font-family:"Space Mono",monospace; font-size:13px; padding:7px 9px;
+  border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);
+}
+.mp-route-row input:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
+.mp-route-row button{
+  background:none; border:none; font-size:16px; line-height:1;
+  cursor:pointer; color:var(--sage); padding:0 2px;
+}
+.mp-route-row button:hover{ color:var(--marker); }
 .card-actions{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
 .card-actions button{
   font-size:11.5px; padding:5px 10px; border-radius:7px;

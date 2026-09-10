@@ -6,8 +6,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom:19
 }).addTo(map);
 
-function pinIcon(temp){
-  const html = `<div class="pin${temp?' temp':''}">
+function pinIcon(variant){
+  const cls = variant===true ? 'temp' : (variant || '');
+  const html = `<div class="pin${cls?' '+cls:''}">
     <svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
       <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 25 15 25s15-14.5 15-25C30 6.7 23.3 0 15 0z" fill="#C1372F"/>
       <circle cx="15" cy="15" r="6" fill="#F6F3EB"/>
@@ -35,7 +36,8 @@ function popupHTML(c){
     c.rock && ['rock', c.rock],
     c.exposition && ['exposition', expositionLabel(c.exposition)],
     hasParking && ['parking', `${(+c.parkingLat).toFixed(4)}, ${(+c.parkingLng).toFixed(4)}`],
-    c.sectors && c.sectors.length && ['sectors', c.sectors.join(', ')]
+    c.sectors && c.sectors.length && ['sectors', c.sectors.join(', ')],
+    c.multipitchRoutes && c.multipitchRoutes.length && ['multipitch routes', c.multipitchRoutes.map(r => r.name).filter(Boolean).join(', ')]
   ].filter(Boolean).map(([k,v]) => `<div class="row"><span>${k}</span><span>${esc(v)}</span></div>`).join('');
   return `<div class="pop">
     <h3>${esc(c.name)}</h3>
@@ -82,10 +84,32 @@ document.getElementById('downloadBtn').addEventListener('click', downloadCragsFi
 
 let markers = [];
 let listMode = 'places';
+let multipitchSubMarkers = [];
+
+function clearMultipitchSubMarkers(){
+  multipitchSubMarkers.forEach(m => map.removeLayer(m));
+  multipitchSubMarkers = [];
+}
+
+function showMultipitchRoutePins(c){
+  clearMultipitchSubMarkers();
+  const routes = (c.multipitchRoutes || []).filter(r => r.lat!==undefined && r.lng!==undefined);
+  if(!routes.length) return;
+  routes.forEach(r => {
+    const marker = L.marker([r.lat, r.lng], { icon:pinIcon('route') }).addTo(map);
+    marker.bindPopup(`<div class="pop"><h3>${esc(r.name || 'Multipitch route')}</h3><div class="row"><span>part of</span><span>${esc(c.name)}</span></div></div>`);
+    marker.on('click', e => L.DomEvent.stopPropagation(e));
+    multipitchSubMarkers.push(marker);
+  });
+  const bounds = L.latLngBounds([[c.lat, c.lng], ...routes.map(r => [r.lat, r.lng])]);
+  map.fitBounds(bounds, { padding:[60,60], maxZoom:16 });
+}
+map.on('click', () => clearMultipitchSubMarkers());
 
 function render(filter=""){
   markers.forEach(m => map.removeLayer(m.marker));
   markers = [];
+  clearMultipitchSubMarkers();
   const f = filter.trim().toLowerCase();
 
   const pinCrags = (listMode === 'visits')
@@ -94,6 +118,9 @@ function render(filter=""){
 
   pinCrags.forEach(c => {
     const marker = L.marker([c.lat, c.lng], { icon:pinIcon() }).addTo(map).bindPopup(popupHTML(c));
+    if(typeIncludes(c.type, 'multipitch')){
+      marker.on('click', e => { L.DomEvent.stopPropagation(e); showMultipitchRoutePins(c); });
+    }
     markers.push({ marker, crag:c });
   });
 
@@ -124,7 +151,11 @@ function renderPlacesList(shown){
         <button type="button" class="btn-add-visit-card">+ Add visit</button>
         <button type="button" class="btn-edit-card">Edit</button>
       </div>`;
-    const go = () => { map.flyTo([c.lat,c.lng], 12, {duration:.8}); marker.openPopup(); };
+    const go = () => {
+      marker.openPopup();
+      if(typeIncludes(c.type, 'multipitch')) showMultipitchRoutePins(c);
+      else map.flyTo([c.lat,c.lng], 12, {duration:.8});
+    };
     card.addEventListener('click', go);
     card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); }});
     card.querySelector('.btn-add-visit-card').addEventListener('click', e => { e.stopPropagation(); openVisitModal(c); });
@@ -167,9 +198,10 @@ function renderVisitsList(f){
       </div>
       ${v.summary?`<div class="visit-card-summary">${esc(v.summary)}</div>`:''}`;
     const go = () => {
-      map.flyTo([c.lat,c.lng], 12, {duration:.8});
       const entry = markers.find(m => m.crag === c);
       entry?.marker.openPopup();
+      if(typeIncludes(c.type, 'multipitch')) showMultipitchRoutePins(c);
+      else map.flyTo([c.lat,c.lng], 12, {duration:.8});
       openVisitsView(c, index);
     };
     card.addEventListener('click', go);

@@ -31,6 +31,8 @@ function openEditModal(crag){
   form.description.value = crag.description || '';
   form.link.value = crag.link || '';
   fillSectorsList(sectorsList, crag.sectors, onSectorsChanged);
+  fillMultipitchRoutesList(multipitchRoutesList, crag.multipitchRoutes);
+  refreshMultipitchRoutesVisibility();
   fillVisitsList(visitsList, crag.visits, noop, () => collectSectors(sectorsList), typeIncludes(crag.type, 'multipitch'));
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
   syncTempMarker(crag.lat, crag.lng);
@@ -54,6 +56,8 @@ map.on('click', e => {
   form.reset();
   resetModalToAddMode();
   fillSectorsList(sectorsList, [], onSectorsChanged);
+  fillMultipitchRoutesList(multipitchRoutesList, []);
+  refreshMultipitchRoutesVisibility();
   resetVisits(visitsList, noop, () => collectSectors(sectorsList), getSelectedTypes().includes('multipitch'));
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
@@ -101,6 +105,8 @@ pickerNextBtn.addEventListener('click', () => {
   form.reset();
   resetModalToAddMode();
   fillSectorsList(sectorsList, [], onSectorsChanged);
+  fillMultipitchRoutesList(multipitchRoutesList, []);
+  refreshMultipitchRoutesVisibility();
   resetVisits(visitsList, noop, () => collectSectors(sectorsList), getSelectedTypes().includes('multipitch'));
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
@@ -212,6 +218,51 @@ document.getElementById('addSectorBtn').addEventListener('click', () => {
   onSectorsChanged();
 });
 
+/* ---------- Multipitch routes (each pinned at its own coordinates) ---------- */
+const multipitchRoutesList = document.getElementById('multipitchRoutesList');
+const multipitchRoutesField = document.getElementById('multipitchRoutesField');
+
+function makeMultipitchRouteRow(){
+  const row = document.createElement('div');
+  row.className = 'mp-route-row';
+  row.innerHTML = `
+    <input type="text" class="mp-route-name" placeholder="Route name" />
+    <input type="text" class="mp-route-coords mono" placeholder="46.076245, 9.435389" />
+    <button type="button" aria-label="Remove route">×</button>`;
+  row.querySelector('button').addEventListener('click', () => row.remove());
+  return row;
+}
+
+function fillMultipitchRoutesList(container, routes){
+  container.innerHTML = '';
+  (routes || []).forEach(r => {
+    const row = makeMultipitchRouteRow();
+    row.querySelector('.mp-route-name').value = r.name || '';
+    row.querySelector('.mp-route-coords').value = (r.lat!==undefined && r.lng!==undefined) ? `${r.lat}, ${r.lng}` : '';
+    container.appendChild(row);
+  });
+}
+
+function collectMultipitchRoutes(container){
+  return [...container.querySelectorAll('.mp-route-row')].map(row => {
+    const name = row.querySelector('.mp-route-name').value.trim();
+    const coord = parseCoordinates(row.querySelector('.mp-route-coords').value);
+    const r = {};
+    if(name) r.name = name;
+    if(coord){ r.lat = coord.lat; r.lng = coord.lng; }
+    return r;
+  }).filter(r => Object.keys(r).length > 0);
+}
+
+function refreshMultipitchRoutesVisibility(){
+  multipitchRoutesField.style.display = getSelectedTypes().includes('multipitch') ? '' : 'none';
+}
+document.getElementById('typeGroup').addEventListener('change', refreshMultipitchRoutesVisibility);
+
+document.getElementById('addMultipitchRouteBtn').addEventListener('click', () => {
+  multipitchRoutesList.appendChild(makeMultipitchRouteRow());
+});
+
 function getSelectedTypes(){
   return [...form.querySelectorAll('input[name="placeType"]:checked')].map(cb => cb.value);
 }
@@ -223,6 +274,7 @@ function readForm(){
   const types = getSelectedTypes();
   const exposition = [...form.querySelectorAll('input[name="exposition"]:checked')].map(cb => cb.value);
   const sectors = collectSectors(sectorsList);
+  const multipitchRoutes = collectMultipitchRoutes(multipitchRoutesList);
   const o = { type: types.length ? types : undefined, name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
@@ -230,6 +282,7 @@ function readForm(){
               rock:g('rock'), exposition: exposition.length ? exposition : undefined,
               description:g('description'), link:g('link'),
               sectors: sectors.length ? sectors : undefined,
+              multipitchRoutes: multipitchRoutes.length ? multipitchRoutes : undefined,
               visits: visits.length ? visits : undefined };
   Object.keys(o).forEach(k => (o[k]===''||o[k]===undefined) && delete o[k]);
   return o;

@@ -86,11 +86,11 @@
     </div>
     <form id="cragForm">
       <div class="field full">
-        <label>Type</label>
-        <select name="type">
-          <option value="crag">Crag</option>
-          <option value="multipitch">Multipitch</option>
-        </select>
+        <label>Type <span style="opacity:.6">(pick all that apply)</span></label>
+        <div class="type-group" id="typeGroup">
+          <label class="type-option"><input type="checkbox" name="placeType" value="crag" checked /> Crag</label>
+          <label class="type-option"><input type="checkbox" name="placeType" value="multipitch" /> Multipitch</label>
+        </div>
       </div>
       <div class="field full"><label>Name</label><input name="name" required placeholder="Massone" /></div>
       <div class="field"><label>Latitude</label><input name="lat" class="mono" required placeholder="45.9180" /></div>

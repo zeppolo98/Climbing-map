@@ -15,7 +15,16 @@ function pinIcon(temp){
   return L.divIcon({ html, className:'', iconSize:[30,40], iconAnchor:[15,40], popupAnchor:[0,-38] });
 }
 
-function typeLabel(t){ return t==='multipitch' ? 'Multipitch' : 'Crag'; }
+function typeArray(type){
+  if(Array.isArray(type)) return type;
+  return type ? [type] : [];
+}
+function typeIncludes(type, t){ return typeArray(type).includes(t); }
+function typeLabelOne(t){ return t==='multipitch' ? 'Multipitch' : 'Crag'; }
+function typeLabel(type){
+  const arr = typeArray(type);
+  return (arr.length ? arr : ['crag']).map(typeLabelOne).join(', ');
+}
 
 function popupHTML(c){
   const hasParking = c.parkingLat!==undefined && c.parkingLng!==undefined;
@@ -104,7 +113,7 @@ function renderPlacesList(shown){
     card.className = 'card'; card.tabIndex = 0;
     card.innerHTML = `<h3>${esc(c.name)}</h3>
       <div class="meta">
-        <span class="tagpill">${esc(typeLabel(c.type))}</span>
+        ${(typeArray(c.type).length ? typeArray(c.type) : ['crag']).map(t => `<span class="tagpill">${esc(typeLabelOne(t))}</span>`).join('')}
         ${c.rock?`<span class="tagpill">${esc(c.rock)}</span>`:''}
         ${c.exposition?`<span class="tagpill">${esc(expositionLabel(c.exposition))}</span>`:''}
         ${c.sectors&&c.sectors.length?`<span class="tagpill">${c.sectors.length} sector${c.sectors.length>1?'s':''}</span>`:''}
@@ -198,8 +207,8 @@ document.getElementById('personFilter').addEventListener('change', () => render(
 
 function updateStats(){
   document.getElementById('stat-total').textContent = CRAGS.length;
-  document.getElementById('stat-crags').textContent = CRAGS.filter(c => c.type!=='multipitch').length;
-  document.getElementById('stat-multipitch').textContent = CRAGS.filter(c => c.type==='multipitch').length;
+  document.getElementById('stat-crags').textContent = CRAGS.filter(c => !typeIncludes(c.type,'multipitch') || typeIncludes(c.type,'crag')).length;
+  document.getElementById('stat-multipitch').textContent = CRAGS.filter(c => typeIncludes(c.type,'multipitch')).length;
 }
 
 document.getElementById('search').addEventListener('input', e => render(e.target.value));

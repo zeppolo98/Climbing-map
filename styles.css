@@ -215,15 +215,15 @@ aside{
 .field .mono input, .field input.mono{ font-family:"Space Mono",monospace; }
 .field input:focus, .field textarea:focus, .field select:focus{ outline:2px solid var(--pine); border-color:var(--pine); }
 .field textarea{ resize:vertical; min-height:60px; }
-.exposition-group{ display:flex; flex-wrap:wrap; gap:8px; }
-.exposition-option{
+.exposition-group, .type-group{ display:flex; flex-wrap:wrap; gap:8px; }
+.exposition-option, .type-option{
   display:flex; align-items:center; gap:6px;
   font-family:"Archivo",sans-serif; font-size:13px; cursor:pointer;
   padding:7px 12px; border-radius:999px; border:1px solid var(--line);
   background:#fff; color:var(--ink); user-select:none;
 }
-.exposition-option input{ margin:0; accent-color:var(--pine); }
-.exposition-option:has(input:checked){ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
+.exposition-option input, .type-option input{ margin:0; accent-color:var(--pine); }
+.exposition-option:has(input:checked), .type-option:has(input:checked){ background:var(--pine); color:var(--chalk); border-color:var(--pine); }
 
 .modal-foot{ padding:16px 22px 22px; display:flex; gap:10px; justify-content:flex-end; }
 .visit-modal-body{ padding:14px 22px 4px; display:flex; flex-direction:column; gap:10px; }

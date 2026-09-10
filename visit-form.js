@@ -128,13 +128,13 @@ function resetVisits(container, onChange, getSectors, includeApproach){
 }
 
 document.getElementById('addVisitBtn').addEventListener('click', () => {
-  visitsList.appendChild(makeVisitBlock(noop, () => collectSectors(sectorsList), form.type.value === 'multipitch'));
+  visitsList.appendChild(makeVisitBlock(noop, () => collectSectors(sectorsList), getSelectedTypes().includes('multipitch')));
   renumberVisits(visitsList);
 });
 
-form.type.addEventListener('change', () => {
+document.getElementById('typeGroup').addEventListener('change', () => {
   const currentVisits = collectVisits(visitsList);
-  fillVisitsList(visitsList, currentVisits, noop, () => collectSectors(sectorsList), form.type.value === 'multipitch');
+  fillVisitsList(visitsList, currentVisits, noop, () => collectSectors(sectorsList), getSelectedTypes().includes('multipitch'));
 });
 
 function collectVisits(container){
@@ -182,7 +182,7 @@ function openVisitModal(crag){
   document.getElementById('visitModalTitle').textContent = 'Add a visit';
   visitModalSub.textContent = `Add a visit to "${crag.name}". It'll be included next time you download crags.js.`
     + ((crag.sectors && crag.sectors.length) ? '' : ' No sectors defined yet — edit the place to add some.');
-  resetVisits(visitAddList, noop, () => (visitTargetCrag && visitTargetCrag.sectors) || [], crag.type === 'multipitch');
+  resetVisits(visitAddList, noop, () => (visitTargetCrag && visitTargetCrag.sectors) || [], typeIncludes(crag.type, 'multipitch'));
   addVisitBtn2.style.display = '';
   visitOverlay.classList.add('show');
 }
@@ -194,7 +194,7 @@ function openEditVisitModal(crag, index){
   visitModalSub.textContent = `Editing a visit to "${crag.name}".`;
   visitAddList.innerHTML = '';
   const getSectors = () => (visitTargetCrag && visitTargetCrag.sectors) || [];
-  const block = makeVisitBlock(noop, getSectors, crag.type === 'multipitch');
+  const block = makeVisitBlock(noop, getSectors, typeIncludes(crag.type, 'multipitch'));
   fillVisitBlock(block, crag.visits[index], noop, getSectors);
   visitAddList.appendChild(block);
   renumberVisits(visitAddList);
@@ -207,7 +207,7 @@ function closeVisitModal(){
   editingVisitIndex = null;
 }
 addVisitBtn2.addEventListener('click', () => {
-  visitAddList.appendChild(makeVisitBlock(noop, () => (visitTargetCrag && visitTargetCrag.sectors) || [], visitTargetCrag && visitTargetCrag.type === 'multipitch'));
+  visitAddList.appendChild(makeVisitBlock(noop, () => (visitTargetCrag && visitTargetCrag.sectors) || [], visitTargetCrag ? typeIncludes(visitTargetCrag.type, 'multipitch') : false));
   renumberVisits(visitAddList);
 });
 document.getElementById('saveVisitBtn').addEventListener('click', () => {

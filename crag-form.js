@@ -18,7 +18,8 @@ function openEditModal(crag){
   document.getElementById('modalTitle').textContent = 'Edit place';
   document.getElementById('dropBtn').textContent = 'Save changes';
   document.getElementById('deleteCragBtn').style.display = '';
-  form.type.value = crag.type || 'crag';
+  const selectedTypes = typeArray(crag.type).length ? typeArray(crag.type) : ['crag'];
+  form.querySelectorAll('input[name="placeType"]').forEach(cb => cb.checked = selectedTypes.includes(cb.value));
   form.name.value = crag.name || '';
   form.lat.value = crag.lat;
   form.lng.value = crag.lng;
@@ -30,7 +31,7 @@ function openEditModal(crag){
   form.description.value = crag.description || '';
   form.link.value = crag.link || '';
   fillSectorsList(sectorsList, crag.sectors, onSectorsChanged);
-  fillVisitsList(visitsList, crag.visits, noop, () => collectSectors(sectorsList), (crag.type || 'crag') === 'multipitch');
+  fillVisitsList(visitsList, crag.visits, noop, () => collectSectors(sectorsList), typeIncludes(crag.type, 'multipitch'));
   if(tempMarker){ map.removeLayer(tempMarker); tempMarker = null; }
   syncTempMarker(crag.lat, crag.lng);
   overlay.classList.add('show');
@@ -53,7 +54,7 @@ map.on('click', e => {
   form.reset();
   resetModalToAddMode();
   fillSectorsList(sectorsList, [], onSectorsChanged);
-  resetVisits(visitsList, noop, () => collectSectors(sectorsList), form.type.value === 'multipitch');
+  resetVisits(visitsList, noop, () => collectSectors(sectorsList), getSelectedTypes().includes('multipitch'));
   form.lat.value = e.latlng.lat.toFixed(4);
   form.lng.value = e.latlng.lng.toFixed(4);
   syncTempMarker();
@@ -100,7 +101,7 @@ pickerNextBtn.addEventListener('click', () => {
   form.reset();
   resetModalToAddMode();
   fillSectorsList(sectorsList, [], onSectorsChanged);
-  resetVisits(visitsList, noop, () => collectSectors(sectorsList), form.type.value === 'multipitch');
+  resetVisits(visitsList, noop, () => collectSectors(sectorsList), getSelectedTypes().includes('multipitch'));
   form.lat.value = pickerCoord.lat.toFixed(6);
   form.lng.value = pickerCoord.lng.toFixed(6);
   overlay.classList.add('show');
@@ -211,13 +212,18 @@ document.getElementById('addSectorBtn').addEventListener('click', () => {
   onSectorsChanged();
 });
 
+function getSelectedTypes(){
+  return [...form.querySelectorAll('input[name="placeType"]:checked')].map(cb => cb.value);
+}
+
 function readForm(){
   const g = n => form[n].value.trim();
   const parking = parseCoordinates(g('parkingCoords'));
   const visits = collectVisits(visitsList);
+  const types = getSelectedTypes();
   const exposition = [...form.querySelectorAll('input[name="exposition"]:checked')].map(cb => cb.value);
   const sectors = collectSectors(sectorsList);
-  const o = { type:g('type'), name:g('name'),
+  const o = { type: types.length ? types : undefined, name:g('name'),
               lat:parseFloat(g('lat')), lng:parseFloat(g('lng')),
               parkingLat: parking ? parking.lat : undefined,
               parkingLng: parking ? parking.lng : undefined,
@@ -235,6 +241,7 @@ form.addEventListener('input', e => {
 document.getElementById('dropBtn').addEventListener('click', () => {
   const o = readForm();
   if(!o.name || isNaN(o.lat) || isNaN(o.lng)){ alert('Need at least a name and coordinates.'); return; }
+  if(!o.type || !o.type.length){ alert('Pick at least one type: crag, multipitch, or both.'); return; }
   if(editingCrag){
     Object.keys(editingCrag).forEach(k => delete editingCrag[k]);
     Object.assign(editingCrag, o);

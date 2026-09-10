@@ -4,7 +4,7 @@
    ===================================================================== */
 const CRAGS = [
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Muro del Butch",
     "lat": 45.908774,
     "lng": 9.434212,
@@ -105,7 +105,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia di Civate",
     "lat": 45.828727,
     "lng": 9.335894,
@@ -165,7 +165,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Val di Mello (blocchi)",
     "lat": 46.249768,
     "lng": 9.64196,
@@ -233,7 +233,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Placca di Pinocchio (Ponte Brolla)",
     "lat": 46.189872,
     "lng": 8.756805,
@@ -266,7 +266,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia Esigo-Ponte Romano",
     "lat": 46.282635,
     "lng": 8.287281,
@@ -298,7 +298,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Zucco dell'Angelone",
     "lat": 45.958137,
     "lng": 9.459862,
@@ -356,7 +356,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia del cannone",
     "lat": 45.981249,
     "lng": 8.39887,
@@ -389,7 +389,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia calusco d'adda",
     "lat": 45.682229,
     "lng": 9.455296,
@@ -446,7 +446,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag", "multipitch"],
     "name": "Ailefroide",
     "lat": 44.885185,
     "lng": 6.450342,
@@ -501,7 +501,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia di Valgua",
     "lat": 45.780462,
     "lng": 9.778912,
@@ -558,7 +558,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Moregallo",
     "lat": 45.881456,
     "lng": 9.340185,
@@ -594,7 +594,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia Introbio",
     "lat": 45.960178,
     "lng": 9.452256,
@@ -648,7 +648,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Grignetta",
     "lat": 45.920542,
     "lng": 9.388661,
@@ -708,7 +708,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Placche di Oriana",
     "lat": 45.623589,
     "lng": 7.701536,
@@ -747,7 +747,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia Grotta",
     "lat": 45.6223,
     "lng": 7.705,
@@ -786,7 +786,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Costa dell'Anglone",
     "lat": 45.97082,
     "lng": 10.911493,
@@ -823,7 +823,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "crag",
+    "type": ["crag"],
     "name": "Falesia Val di Lomasone",
     "lat": 45.972855,
     "lng": 10.86498,
@@ -869,7 +869,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Santa Massenza",
     "lat": 46.068277,
     "lng": 10.978479,
@@ -903,7 +903,7 @@ const CRAGS = [
     ]
   },
   {
-    "type": "multipitch",
+    "type": ["multipitch"],
     "name": "Campanile Basso",
     "lat": 46.161406,
     "lng": 10.892466,

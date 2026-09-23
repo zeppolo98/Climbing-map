@@ -4,7 +4,9 @@
    ===================================================================== */
 const CRAGS = [
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Muro del Butch",
     "lat": 45.908774,
     "lng": 9.434212,
@@ -105,7 +107,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia di Civate",
     "lat": 45.828727,
     "lng": 9.335894,
@@ -165,7 +169,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Val di Mello (blocchi)",
     "lat": 46.249768,
     "lng": 9.64196,
@@ -233,7 +239,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Placca di Pinocchio (Ponte Brolla)",
     "lat": 46.189872,
     "lng": 8.756805,
@@ -266,7 +274,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia Esigo-Ponte Romano",
     "lat": 46.282635,
     "lng": 8.287281,
@@ -298,7 +308,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Zucco dell'Angelone",
     "lat": 45.958137,
     "lng": 9.459862,
@@ -356,7 +368,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia del cannone",
     "lat": 45.981249,
     "lng": 8.39887,
@@ -389,7 +403,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia calusco d'adda",
     "lat": 45.682229,
     "lng": 9.455296,
@@ -446,7 +462,10 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag", "multipitch"],
+    "type": [
+      "crag",
+      "multipitch"
+    ],
     "name": "Ailefroide",
     "lat": 44.885185,
     "lng": 6.450342,
@@ -501,7 +520,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia di Valgua",
     "lat": 45.780462,
     "lng": 9.778912,
@@ -558,7 +579,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Moregallo",
     "lat": 45.881456,
     "lng": 9.340185,
@@ -594,7 +617,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia Introbio",
     "lat": 45.960178,
     "lng": 9.452256,
@@ -648,7 +673,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Grignetta",
     "lat": 45.920542,
     "lng": 9.388661,
@@ -708,7 +735,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Placche di Oriana",
     "lat": 45.623589,
     "lng": 7.701536,
@@ -747,7 +776,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia Grotta",
     "lat": 45.6223,
     "lng": 7.705,
@@ -786,7 +817,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Costa dell'Anglone",
     "lat": 45.97082,
     "lng": 10.911493,
@@ -823,7 +856,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["crag"],
+    "type": [
+      "crag"
+    ],
     "name": "Falesia Val di Lomasone",
     "lat": 45.972855,
     "lng": 10.86498,
@@ -869,7 +904,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Santa Massenza",
     "lat": 46.068277,
     "lng": 10.978479,
@@ -903,7 +940,9 @@ const CRAGS = [
     ]
   },
   {
-    "type": ["multipitch"],
+    "type": [
+      "multipitch"
+    ],
     "name": "Campanile Basso",
     "lat": 46.161406,
     "lng": 10.892466,
@@ -935,6 +974,87 @@ const CRAGS = [
             "name": "Via Normale",
             "grade": "V",
             "comment": "STUPENDA. Abbiamo sbagliato strada un po' di vote sui tiri, ma si fa. Difficoltà tecnica bassa ma è tutto da integrare tranne la Poli e l'ultimo tiro se segui i chiodi sul quinto"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": [
+      "multipitch"
+    ],
+    "name": "Rocca di Baiedo",
+    "lat": 45.95982,
+    "lng": 9.448282,
+    "parkingLat": 45.960851,
+    "parkingLng": 9.449404,
+    "rock": "Limestone",
+    "exposition": [
+      "Sud"
+    ],
+    "description": "Easy parking and very short walk to get to the routes",
+    "link": "https://www.scuolaguidodellatorre.it/relazioni/RoccaBaiedo-viaSolitudine/571/",
+    "multipitchRoutes": [
+      {
+        "name": "Solitudine",
+        "lat": 45.959593,
+        "lng": 9.448387
+      }
+    ],
+    "visits": [
+      {
+        "date": "2026-09-19",
+        "with": [
+          "Nico"
+        ],
+        "summary": "ci abbiamo messo 2 ore e mezza come da relazione, mai successo. Via carina, non difficile. Avvicinamento e parcheggio top. Si arriva in cima alla rocca ed è molto carino, da provare altre vie qui.",
+        "avvicinamento": "camminando sul comodo sentiero fino al cartello e dopo 20 metri in salita si è all'attacco segnato con targa",
+        "discesa": "Comodissimo sentiero, salire prima alla cima della rocca piegando a sinistra e poi si scende a Baiedo e da lì si torna all'auto",
+        "routes": [
+          {
+            "name": "Solitudine",
+            "grade": "V/V+"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": [
+      "multipitch"
+    ],
+    "name": "Albard",
+    "lat": 45.608179,
+    "lng": 7.758174,
+    "parkingLat": 45.609896,
+    "parkingLng": 7.759875,
+    "rock": "Gneiss",
+    "exposition": [
+      "Sud"
+    ],
+    "description": "Carina, vie facili e ben spittate, non andare d'estate",
+    "link": "https://www.thecrag.com/it/arrampicata/italy/northern-italy/val-daosta/verres-donnas-area/area/5783995395",
+    "multipitchRoutes": [
+      {
+        "name": "Ozzy",
+        "lat": 45.608189,
+        "lng": 7.758327
+      }
+    ],
+    "visits": [
+      {
+        "with": [
+          "Andre",
+          "Luca",
+          "SaraG"
+        ],
+        "avvicinamento": "Dal parcheggio salire la scala di roccia che porta al PAGGIO. Da lì seguire il sentiero che scende passando per una baita nella roccia, delle catene fisse e poi diventa un sentiero segnato con bolli fluo (senza la traccia di Lu ci saremmo persi)",
+        "discesa": "Comodo sentiero dalla cima, alla baita proseguire verso destra faccia a monte e si torna al paggio",
+        "routes": [
+          {
+            "name": "Ozzy",
+            "grade": "V+",
+            "comment": "carina, le pareti verticali sono divertenti da scalare"
           }
         ]
       }

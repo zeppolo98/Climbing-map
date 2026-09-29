@@ -1084,7 +1084,8 @@ const CRAGS = [
         "date": "2026-09-26",
         "with": [
           "Fede",
-          "Ari"
+          "Ari",
+          "Selma"
         ],
         "summary": "6 ore di blocchi durante il festival in Valle Orco. FIGHISSIMO. Fatto un po' di 6a / 6b e provato per due ore Ceresole Royal 7a, traverso lunghissimo su tacche <3"
       }
@@ -1113,7 +1114,8 @@ const CRAGS = [
         "date": "2026-09-27",
         "with": [
           "Fede",
-          "Morgana"
+          "Morgana",
+          "Selma"
         ],
         "summary": "Eravamo tritati dai blocchi del giorno prima, ma comunque fighissimi i tiri. Tanto di resistenza sugli avambracci",
         "routes": [
@@ -1160,5 +1162,6 @@ const PEOPLE = [
   "SaraS",
   "Sere",
   "Ari",
-  "Morgana"
+  "Morgana",
+  "Selma"
 ];

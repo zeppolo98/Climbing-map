@@ -1043,11 +1043,13 @@ const CRAGS = [
     ],
     "visits": [
       {
+        "date": "2026-09-20",
         "with": [
           "Andre",
           "Luca",
           "SaraG"
         ],
+        "summary": "Via carina, soprattutto le pareti verticali. Comunque facile e ben spittata. Ultima via di Andre <3",
         "avvicinamento": "Dal parcheggio salire la scala di roccia che porta al PAGGIO. Da lì seguire il sentiero che scende passando per una baita nella roccia, delle catene fisse e poi diventa un sentiero segnato con bolli fluo (senza la traccia di Lu ci saremmo persi)",
         "discesa": "Comodo sentiero dalla cima, alla baita proseguire verso destra faccia a monte e si torna al paggio",
         "routes": [
@@ -1055,6 +1057,81 @@ const CRAGS = [
             "name": "Ozzy",
             "grade": "V+",
             "comment": "carina, le pareti verticali sono divertenti da scalare"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": [
+      "crag"
+    ],
+    "name": "Blocchi Fonti minerali",
+    "lat": 45.429448,
+    "lng": 7.25095,
+    "parkingLat": 45.43011,
+    "parkingLng": 7.250239,
+    "rock": "Gneiss",
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
+    "description": "Zona per fare blocchi subito dietro il rifugio. Tutte le difficoltà e vari tipi di scalata",
+    "visits": [
+      {
+        "date": "2026-09-26",
+        "with": [
+          "Fede",
+          "Ari"
+        ],
+        "summary": "6 ore di blocchi durante il festival in Valle Orco. FIGHISSIMO. Fatto un po' di 6a / 6b e provato per due ore Ceresole Royal 7a, traverso lunghissimo su tacche <3"
+      }
+    ]
+  },
+  {
+    "type": [
+      "crag"
+    ],
+    "name": "Falesia Bosco",
+    "lat": 45.408468,
+    "lng": 7.506321,
+    "parkingLat": 45.407395,
+    "parkingLng": 7.505919,
+    "rock": "Gneiss",
+    "exposition": [
+      "Nord",
+      "Sud",
+      "Est",
+      "Ovest"
+    ],
+    "description": "Falesia giustamente nel bosco. Frequentabile tutto l'anno. La roccia è stupenda, granito pieno di prese, soprattutto svase. Tutti i tiri sono verticali o strapiombanti, zero placca.",
+    "link": "https://www.gulliver.it/itinerari/bosco-falesia-di/",
+    "visits": [
+      {
+        "date": "2026-09-27",
+        "with": [
+          "Fede",
+          "Morgana"
+        ],
+        "summary": "Eravamo tritati dai blocchi del giorno prima, ma comunque fighissimi i tiri. Tanto di resistenza sugli avambracci",
+        "routes": [
+          {
+            "name": "La bamba",
+            "grade": "6b"
+          },
+          {
+            "name": "Satanatt",
+            "grade": "6c"
+          },
+          {
+            "name": "C'era una volta",
+            "grade": "5+++"
+          },
+          {
+            "name": "Mamba",
+            "grade": "6a"
           }
         ]
       }
@@ -1081,5 +1158,7 @@ const PEOPLE = [
   "Nico",
   "SaraG",
   "SaraS",
-  "Sere"
+  "Sere",
+  "Ari",
+  "Morgana"
 ];
